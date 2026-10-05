@@ -1,61 +1,1397 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Môj test</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#6750e8">
+<title>Môj test</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
-        }
+<style>
+:root{
+  --p:#6750e8;
+  --bg:#f6f6fb;
+  --b:#e1e3ea;
+  --m:#6b7280;
+  --g:#16784a;
+  --gb:#e8f7ef;
+  --r:#c93636;
+  --rb:#fdecec
+}
 
-        .app {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-        }
+*{box-sizing:border-box}
 
-        h1 {
-            text-align: center;
-        }
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  background:var(--bg);
+  color:#222
+}
 
-        button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-        }
+header{
+  background:var(--p);
+  color:white;
+  padding:15px 0;
+  position:sticky;
+  top:0;
+  z-index:10
+}
 
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
+.wrap{
+  max-width:960px;
+  margin:auto;
+  padding:0 14px
+}
 
-            .app {
-                padding: 15px;
-            }
-        }
-    </style>
+.card{
+  background:#fff;
+  border:1px solid var(--b);
+  border-radius:16px;
+  padding:18px;
+  margin:13px 0;
+  box-shadow:0 5px 20px #0000000a
+}
+
+.hidden{display:none!important}
+
+.tabs,.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap
+}
+
+.tabs{
+  padding:12px 0;
+  overflow:auto
+}
+
+button{
+  border:0;
+  border-radius:10px;
+  padding:11px 14px;
+  background:var(--p);
+  color:#fff;
+  font:inherit;
+  font-weight:700;
+  cursor:pointer
+}
+
+button.alt{
+  background:#e9eaf1;
+  color:#292b31
+}
+
+button.red{background:var(--r)}
+
+label{
+  display:block;
+  font-weight:650;
+  margin:10px 0 5px
+}
+
+input,textarea,select{
+  width:100%;
+  padding:11px;
+  border:1px solid var(--b);
+  border-radius:10px;
+  font:inherit
+}
+
+textarea{min-height:85px}
+
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px
+}
+
+.small{
+  font-size:13px;
+  color:var(--m)
+}
+
+.editor{
+  display:grid;
+  grid-template-columns:28px 1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:8px;
+  border:1px solid var(--b);
+  border-radius:10px;
+  margin:7px 0
+}
+
+.editor input[type=checkbox]{width:auto}
+
+.option{
+  display:flex;
+  gap:9px;
+  padding:12px;
+  border:2px solid var(--b);
+  border-radius:11px;
+  margin:8px 0
+}
+
+.option.sel{
+  border-color:var(--p);
+  background:#f2f0ff
+}
+
+.option input{width:auto}
+
+.qimg{
+  max-width:100%;
+  max-height:380px;
+  display:block;
+  margin:12px auto;
+  border-radius:11px
+}
+
+.res{
+  padding:10px;
+  border:2px solid;
+  border-radius:10px;
+  margin:6px 0
+}
+
+.res.good{
+  background:var(--gb);
+  border-color:var(--g);
+  color:#12623d
+}
+
+.res.bad{
+  background:var(--rb);
+  border-color:var(--r);
+  color:#962626
+}
+
+.item{
+  padding:11px 0;
+  border-bottom:1px solid var(--b);
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center
+}
+
+.stat{
+  font-size:32px;
+  font-weight:850
+}
+
+.progress{
+  height:8px;
+  background:#e8e8ef;
+  border-radius:99px;
+  overflow:hidden
+}
+
+.progress div{
+  height:100%;
+  background:var(--p)
+}
+
+@media(max-width:650px){
+  .row{grid-template-columns:1fr}
+  .card{padding:14px}
+  .actions button{flex:1 1 auto}
+}
+</style>
 </head>
 
 <body>
 
-<div class="app">
-    <h1>📚 Môj test</h1>
-
-    <p>
-        Tu bude neskôr tvoja databáza otázok a celý test.
-    </p>
-
-    <button>Začať test</button>
+<header>
+<div class="wrap">
+<b>📚 Môj test ☁️</b>
+<span id="who" style="float:right;font-size:12px">Neprihlásená</span>
 </div>
+</header>
+
+<main class="wrap">
+
+<section id="config" class="card">
+<h2>Pripojenie k Supabase</h2>
+
+<p class="small">
+Vlož Project URL a Publishable key.
+Nikdy nevkladaj secret/service_role key.
+</p>
+
+<label>Project URL</label>
+<input id="url" placeholder="https://xxxxx.supabase.co">
+
+<label>Publishable key</label>
+<input id="key" type="password">
+
+<div class="actions" style="margin-top:12px">
+<button onclick="saveConfig()">Uložiť a pripojiť</button>
+</div>
+</section>
+
+<section id="auth" class="card hidden">
+<h2>Prihlásenie</h2>
+
+<div class="row">
+<div>
+<label>E-mail</label>
+<input id="email" type="email">
+</div>
+
+<div>
+<label>Heslo</label>
+<input id="password" type="password">
+</div>
+</div>
+
+<div class="actions" style="margin-top:12px">
+<button onclick="signIn()">Prihlásiť</button>
+<button class="alt" onclick="signUp()">Vytvoriť účet</button>
+<button class="alt" onclick="changeConnection()">⚙️ Zmeniť Supabase pripojenie</button>
+</div>
+
+<p id="authmsg" class="small"></p>
+</section>
+
+<div id="app" class="hidden">
+
+<div class="tabs">
+<button onclick="tab('test')">Test</button>
+<button class="alt" onclick="tab('questions')">Otázky</button>
+<button class="alt" onclick="tab('wrong')">
+❌ Chybné <span id="wn"></span>
+</button>
+<button class="alt" onclick="tab('account')">Účet</button>
+</div>
+
+<section id="test">
+
+<div id="setup" class="card">
+
+<h2>Vytvoriť test</h2>
+
+<div class="row">
+
+<div>
+<label>Počet otázok</label>
+<input id="count" type="number" min="1" value="20">
+</div>
+
+<div>
+<label>Možnosti</label>
+<select id="mode">
+<option value="4">4 možnosti</option>
+<option value="8">8 možností</option>
+</select>
+</div>
+
+</div>
+
+<p class="small">
+Pri 4 možnostiach sa vyberú náhodné 4 z ôsmich.
+Môžu byť všetky správne, všetky nesprávne alebo kombinácia.
+Hodnotia sa správne odpovede iba medzi zobrazenými možnosťami.
+</p>
+
+<div class="actions">
+<button onclick="start(false)">🎲 Spustiť test</button>
+<button class="alt" onclick="start(true)">🔁 Skúšať chybné</button>
+</div>
+
+<p id="info" class="small"></p>
+
+</div>
+
+<div id="testArea" class="hidden"></div>
+
+</section>
+
+<section id="questions" class="hidden">
+
+<div class="card">
+
+<h2>➕ Pridať otázku</h2>
+
+<label>Otázka</label>
+<textarea id="qt"></textarea>
+
+<label>Obrázok (nepovinný)</label>
+<input id="img" type="file" accept="image/*" onchange="previewImg(event)">
+
+<img id="preview" class="qimg hidden">
+
+<label>Vysvetlenie (nepovinné)</label>
+<textarea id="exp"></textarea>
+
+<h3>Odpovede A–H</h3>
+
+<div id="editor"></div>
+
+<div class="actions">
+<button onclick="saveQuestion()">💾 Uložiť do cloudu</button>
+<button class="alt" onclick="resetForm()">Vyčistiť</button>
+</div>
+
+<p id="qmsg" class="small"></p>
+
+</div>
+
+<div class="card">
+<h2>Moje otázky</h2>
+<div id="qlist"></div>
+</div>
+
+</section>
+
+<section id="wrong" class="hidden">
+
+<div class="card">
+
+<h2>❌ Chybné otázky</h2>
+
+<p class="small">
+Otázky, v ktorých urobíš chybu, sa sem automaticky uložia.
+</p>
+
+<div class="actions">
+<button onclick="start(true)">🔁 Skúšať chybné</button>
+</div>
+
+<div id="wlist"></div>
+
+</div>
+
+</section>
+
+<section id="account" class="hidden">
+
+<div class="card">
+
+<h2>Účet</h2>
+
+<p id="accountEmail"></p>
+
+<p class="small">
+Na PC aj mobile sa prihlás rovnakým účtom.
+Otázky a chybné otázky sa načítajú zo Supabase.
+</p>
+
+<div class="actions">
+<button class="alt" onclick="reload()">🔄 Synchronizovať teraz</button>
+<button class="alt" onclick="changeConnection()">⚙️ Zmeniť Supabase pripojenie</button>
+<button class="red" onclick="logout()">Odhlásiť</button>
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+let sb;
+let user;
+let questions=[];
+let wrong=new Set();
+let newImageFile=null;
+let editId=null;
+let oldImagePath=null;
+let test={};
+
+const $=x=>document.getElementById(x);
+
+const esc=s=>String(s??'').replace(
+  /[&<>"']/g,
+  c=>({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c])
+);
+
+const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+
+function normalizeUrl(u){
+  u=(u||'').trim().replace(/\/+$/,'');
+  u=u.replace(/\/rest\/v1$/,'');
+  return u;
+}
+
+function validProjectUrl(u){
+  return /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(u);
+}
+
+function init(){
+
+  let u=normalizeUrl(localStorage.getItem('quiz_sb_url'));
+  let k=localStorage.getItem('quiz_sb_key');
+
+  if(u&&k&&validProjectUrl(u)){
+
+    localStorage.setItem('quiz_sb_url',u);
+
+    $('url').value=u;
+    $('key').value=k;
+
+    connect(u,k);
+
+  }else{
+
+    if(u)$('url').value=u;
+    if(k)$('key').value=k;
+
+  }
+}
+
+function saveConfig(){
+
+  let u=normalizeUrl($('url').value);
+  let k=$('key').value.trim();
+
+  $('url').value=u;
+
+  if(!u||!k){
+    return alert('Vyplň Project URL aj Publishable key.');
+  }
+
+  if(!validProjectUrl(u)){
+    return alert(
+      'Project URL nemá správny tvar. Má vyzerať napríklad https://xxxxx.supabase.co bez /rest/v1/.'
+    );
+  }
+
+  localStorage.setItem('quiz_sb_url',u);
+  localStorage.setItem('quiz_sb_key',k);
+
+  connect(u,k);
+}
+
+function changeConnection(){
+
+  localStorage.removeItem('quiz_sb_url');
+  localStorage.removeItem('quiz_sb_key');
+
+  try{
+    if(sb)sb.auth.signOut();
+  }catch(e){}
+
+  location.reload();
+}
+
+async function connect(u,k){
+
+  try{
+
+    sb=supabase.createClient(u,k);
+
+    $('config').classList.add('hidden');
+    $('auth').classList.remove('hidden');
+
+    let {data}=await sb.auth.getSession();
+
+    if(data.session){
+
+      user=data.session.user;
+      enter();
+
+    }
+
+  }catch(e){
+
+    alert(e.message);
+
+  }
+}
+
+async function signUp(){
+
+  const email=$('email').value.trim();
+  const password=$('password').value;
+
+  if(!email || !password){
+    $('authmsg').textContent='Vyplň e-mail aj heslo.';
+    return;
+  }
+
+  let {data,error}=await sb.auth.signUp({
+    email,
+    password
+  });
+
+  if(error){
+
+    $('authmsg').textContent=error.message;
+    return;
+
+  }
+
+  $('authmsg').textContent=
+    data.session
+    ? 'Účet vytvorený.'
+    : 'Skontroluj e-mail, potvrď registráciu a potom sa prihlás.';
+
+  if(data.session){
+
+    user=data.user;
+    enter();
+
+  }
+}
+
+async function signIn(){
+
+  const email=$('email').value.trim();
+  const password=$('password').value;
+
+  if(!email || !password){
+
+    $('authmsg').textContent='Vyplň e-mail aj heslo.';
+    return;
+
+  }
+
+  let {data,error}=await sb.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+
+    $('authmsg').textContent=error.message;
+    return;
+
+  }
+
+  user=data.user;
+
+  enter();
+}
+
+async function enter(){
+
+  $('auth').classList.add('hidden');
+  $('app').classList.remove('hidden');
+
+  $('who').textContent=user.email;
+  $('accountEmail').textContent='Prihlásená: '+user.email;
+
+  await reload();
+}
+
+async function logout(){
+
+  await sb.auth.signOut();
+  location.reload();
+
+}
+
+async function signedImage(path){
+
+  if(!path)return null;
+
+  let {data,error}=await sb.storage
+    .from('question-images')
+    .createSignedUrl(path,3600);
+
+  return error?null:data.signedUrl;
+}
+
+async function reload(){
+
+  let r=await sb
+    .from('questions')
+    .select('*,answers(*)')
+    .order('created_at');
+
+  if(r.error){
+    return alert(r.error.message);
+  }
+
+  questions=r.data||[];
+
+  for(let q of questions){
+
+    q.answers=(q.answers||[])
+      .sort((a,b)=>a.letter.localeCompare(b.letter));
+
+    q.signed_image=await signedImage(q.image_url);
+
+  }
+
+  let w=await sb
+    .from('wrong_questions')
+    .select('question_id');
+
+  if(w.error){
+    return alert(w.error.message);
+  }
+
+  wrong=new Set(
+    (w.data||[]).map(x=>x.question_id)
+  );
+
+  renderAll();
+}
+
+function tab(id){
+
+  ['test','questions','wrong','account']
+    .forEach(x=>{
+      $(x).classList.toggle('hidden',x!==id);
+    });
+
+  if(id==='questions')renderQuestions();
+  if(id==='wrong')renderWrong();
+}
+
+function editor(){
+
+  $('editor').innerHTML=
+    'ABCDEFGH'
+    .split('')
+    .map((l,i)=>`
+
+      <div class="editor">
+
+        <b>${l}</b>
+
+        <input
+          id="a${i}"
+          placeholder="Odpoveď ${l}"
+        >
+
+        <label style="margin:0;font-weight:500">
+
+          <input
+            id="c${i}"
+            type="checkbox"
+          >
+
+          správna
+
+        </label>
+
+      </div>
+
+    `).join('');
+}
+
+function previewImg(e){
+
+  newImageFile=e.target.files[0]||null;
+
+  if(!newImageFile)return;
+
+  let u=URL.createObjectURL(newImageFile);
+
+  $('preview').src=u;
+  $('preview').classList.remove('hidden');
+}
+
+function resetForm(){
+
+  editId=null;
+  oldImagePath=null;
+  newImageFile=null;
+
+  $('qt').value='';
+  $('exp').value='';
+  $('img').value='';
+
+  $('preview').classList.add('hidden');
+
+  for(let i=0;i<8;i++){
+
+    $('a'+i).value='';
+    $('c'+i).checked=false;
+
+  }
+}
+
+async function uploadImage(){
+
+  if(!newImageFile){
+    return oldImagePath;
+  }
+
+  let ext=
+    (newImageFile.name.split('.').pop()||'jpg')
+    .replace(/[^a-zA-Z0-9]/g,'');
+
+  let path=
+    `${user.id}/${crypto.randomUUID()}.${ext}`;
+
+  let r=await sb.storage
+    .from('question-images')
+    .upload(
+      path,
+      newImageFile,
+      {upsert:false}
+    );
+
+  if(r.error)throw r.error;
+
+  return path;
+}
+
+async function saveQuestion(){
+
+  try{
+
+    let text=$('qt').value.trim();
+
+    let aa=[];
+
+    for(let i=0;i<8;i++){
+
+      aa.push({
+        letter:'ABCDEFGH'[i],
+        answer_text:$('a'+i).value.trim(),
+        is_correct:$('c'+i).checked
+      });
+
+    }
+
+    if(!text){
+      return alert('Napíš otázku.');
+    }
+
+    if(aa.some(a=>!a.answer_text)){
+      return alert('Vyplň všetkých 8 odpovedí.');
+    }
+
+    /*
+      Úmyselne NEVYŽADUJEME správnu odpoveď.
+      Otázka môže mať aj 0 správnych možností.
+    */
+
+    let imagePath=await uploadImage();
+
+    let qid=editId;
+
+    if(qid){
+
+      let r=await sb
+        .from('questions')
+        .update({
+          question:text,
+          image_url:imagePath,
+          explanation:$('exp').value.trim()||null
+        })
+        .eq('id',qid);
+
+      if(r.error)throw r.error;
+
+      let d=await sb
+        .from('answers')
+        .delete()
+        .eq('question_id',qid);
+
+      if(d.error)throw d.error;
+
+    }else{
+
+      let r=await sb
+        .from('questions')
+        .insert({
+          user_id:user.id,
+          question:text,
+          image_url:imagePath,
+          explanation:$('exp').value.trim()||null
+        })
+        .select()
+        .single();
+
+      if(r.error)throw r.error;
+
+      qid=r.data.id;
+    }
+
+    let a=await sb
+      .from('answers')
+      .insert(
+        aa.map(x=>({
+          ...x,
+          question_id:qid
+        }))
+      );
+
+    if(a.error)throw a.error;
+
+    resetForm();
+
+    $('qmsg').textContent=
+      'Uložené do cloudu ☁️';
+
+    await reload();
+
+    tab('questions');
+
+  }catch(e){
+
+    alert('Chyba: '+e.message);
+
+  }
+}
+
+function editQ(id){
+
+  let q=questions.find(x=>x.id===id);
+
+  editId=id;
+  oldImagePath=q.image_url||null;
+  newImageFile=null;
+
+  $('qt').value=q.question;
+  $('exp').value=q.explanation||'';
+
+  for(let i=0;i<8;i++){
+
+    let a=q.answers.find(
+      x=>x.letter==='ABCDEFGH'[i]
+    );
+
+    $('a'+i).value=
+      a?.answer_text||'';
+
+    $('c'+i).checked=
+      !!a?.is_correct;
+  }
+
+  if(q.signed_image){
+
+    $('preview').src=q.signed_image;
+    $('preview').classList.remove('hidden');
+
+  }else{
+
+    $('preview').classList.add('hidden');
+
+  }
+
+  scrollTo(0,0);
+}
+
+async function delQ(id){
+
+  if(!confirm('Vymazať otázku?')){
+    return;
+  }
+
+  let q=questions.find(x=>x.id===id);
+
+  let r=await sb
+    .from('questions')
+    .delete()
+    .eq('id',id);
+
+  if(r.error){
+    return alert(r.error.message);
+  }
+
+  if(q?.image_url){
+
+    await sb.storage
+      .from('question-images')
+      .remove([q.image_url]);
+
+  }
+
+  await reload();
+}
+
+function renderQuestions(){
+
+  $('qlist').innerHTML=
+    questions.length
+
+    ? questions.map((q,i)=>`
+
+      <div class="item">
+
+        <div>
+
+          <b>
+            ${i+1}. ${esc(q.question)}
+          </b>
+
+          <div class="small">
+
+            Správne:
+            ${
+              q.answers
+                .filter(a=>a.is_correct)
+                .map(a=>a.letter)
+                .join(', ')
+              || 'žiadna'
+            }
+
+          </div>
+
+        </div>
+
+        <div class="actions">
+
+          <button
+            class="alt"
+            onclick="editQ('${q.id}')"
+          >
+            Upraviť
+          </button>
+
+          <button
+            class="red"
+            onclick="delQ('${q.id}')"
+          >
+            Zmazať
+          </button>
+
+        </div>
+
+      </div>
+
+    `).join('')
+
+    : '<p class="small">Zatiaľ bez otázok.</p>';
+}
+
+function renderWrong(){
+
+  let a=questions.filter(
+    q=>wrong.has(q.id)
+  );
+
+  $('wlist').innerHTML=
+    a.length
+
+    ? a.map((q,i)=>`
+
+      <div class="item">
+
+        <b>
+          ${i+1}. ${esc(q.question)}
+        </b>
+
+        <button
+          class="alt"
+          onclick="removeWrong('${q.id}')"
+        >
+          Odstrániť
+        </button>
+
+      </div>
+
+    `).join('')
+
+    : '<p class="small">Priečinok je prázdny. 🎉</p>';
+}
+
+async function removeWrong(id){
+
+  await sb
+    .from('wrong_questions')
+    .delete()
+    .eq('user_id',user.id)
+    .eq('question_id',id);
+
+  await reload();
+}
+
+function start(onlyWrong){
+
+  let pool=
+    onlyWrong
+    ? questions.filter(q=>wrong.has(q.id))
+    : questions;
+
+  if(!pool.length){
+
+    return alert(
+      onlyWrong
+      ? 'Nemáš chybné otázky.'
+      : 'Nemáš otázky.'
+    );
+
+  }
+
+  let n=Math.min(
+    Math.max(
+      1,
+      +$('count').value||1
+    ),
+    pool.length
+  );
+
+  let m=+$('mode').value;
+
+  pool=shuffle(pool).slice(0,n);
+
+  test={
+
+    items:pool.map(q=>({
+
+      q,
+
+      opts:
+        m===8
+        ? shuffle(q.answers)
+        : shuffle(q.answers).slice(0,4)
+
+    })),
+
+    i:0,
+    sel:[],
+    ans:[]
+
+  };
+
+  tab('test');
+
+  $('setup').classList.add('hidden');
+
+  renderTest();
+}
+
+function renderTest(){
+
+  let it=test.items[test.i];
+  let q=it.q;
+
+  $('testArea').classList.remove('hidden');
+
+  $('testArea').innerHTML=`
+
+    <div class="card">
+
+      <div class="small">
+        Otázka ${test.i+1} z ${test.items.length}
+      </div>
+
+      <div class="progress">
+        <div style="width:${100*test.i/test.items.length}%"></div>
+      </div>
+
+      <h2>${esc(q.question)}</h2>
+
+      ${
+        q.signed_image
+        ? `<img class="qimg" src="${q.signed_image}">`
+        : ''
+      }
+
+      ${
+        it.opts.map(a=>`
+
+          <label class="option ${
+            test.sel.includes(a.letter)
+            ? 'sel'
+            : ''
+          }">
+
+            <input
+              type="checkbox"
+              ${
+                test.sel.includes(a.letter)
+                ? 'checked'
+                : ''
+              }
+              onchange="tog('${a.letter}')"
+            >
+
+            <span>
+
+              <b>${a.letter})</b>
+              ${esc(a.answer_text)}
+
+            </span>
+
+          </label>
+
+        `).join('')
+      }
+
+      <div class="actions">
+
+        <button onclick="next()">
+
+          ${
+            test.i===test.items.length-1
+            ? 'Vyhodnotiť'
+            : 'Ďalej →'
+          }
+
+        </button>
+
+      </div>
+
+    </div>
+
+  `;
+}
+
+function tog(l){
+
+  if(test.sel.includes(l)){
+
+    test.sel=
+      test.sel.filter(x=>x!==l);
+
+  }else{
+
+    test.sel.push(l);
+
+  }
+
+  renderTest();
+}
+
+function next(){
+
+  test.ans[test.i]=
+    [...test.sel].sort();
+
+  if(test.i<test.items.length-1){
+
+    test.i++;
+    test.sel=[];
+
+    renderTest();
+
+  }else{
+
+    finish();
+
+  }
+}
+
+async function finish(){
+
+  let score=0;
+  let ds=[];
+
+  for(let i=0;i<test.items.length;i++){
+
+    let it=test.items[i];
+
+    let shown=
+      new Set(
+        it.opts.map(a=>a.letter)
+      );
+
+    let cor=
+      it.q.answers
+      .filter(
+        a=>a.is_correct &&
+        shown.has(a.letter)
+      )
+      .map(a=>a.letter)
+      .sort();
+
+    let mine=
+      (test.ans[i]||[])
+      .sort();
+
+    let ok=
+      JSON.stringify(cor)===
+      JSON.stringify(mine);
+
+    if(ok){
+
+      score++;
+
+    }else{
+
+      await sb
+        .from('wrong_questions')
+        .upsert({
+          user_id:user.id,
+          question_id:it.q.id
+        });
+
+      wrong.add(it.q.id);
+
+    }
+
+    ds.push({
+      it,
+      cor,
+      mine,
+      ok
+    });
+  }
+
+  let pct=
+    Math.round(
+      score/test.items.length*100
+    );
+
+  $('testArea').innerHTML=`
+
+    <div class="card">
+
+      <h2>Výsledok</h2>
+
+      <div class="stat">
+        ${score}/${test.items.length}
+        — ${pct}%
+      </div>
+
+      <p class="small">
+        Chybné otázky boli uložené
+        do priečinka Chybné.
+      </p>
+
+      <div class="actions">
+
+        <button onclick="newTest()">
+          Nový test
+        </button>
+
+      </div>
+
+    </div>
+
+    ${
+      ds.map(
+        (d,i)=>review(d,i)
+      ).join('')
+    }
+
+  `;
+
+  renderAll();
+}
+
+function review(d,i){
+
+  let q=d.it.q;
+
+  let shown=
+    new Set(
+      d.it.opts.map(a=>a.letter)
+    );
+
+  return `
+
+    <div class="card">
+
+      <h3>
+        ${i+1}. ${esc(q.question)}
+      </h3>
+
+      ${
+        q.signed_image
+        ? `<img class="qimg" src="${q.signed_image}">`
+        : ''
+      }
+
+      <p>
+
+        <b>
+          ${
+            d.ok
+            ? '✓ Správne'
+            : '✗ Nesprávne'
+          }
+        </b>
+
+        — tvoje:
+        ${d.mine.join(', ')||'žiadna'}
+
+        |
+
+        správne medzi zobrazenými:
+        ${d.cor.join(', ')||'žiadna'}
+
+      </p>
+
+      ${
+        q.answers.map(a=>`
+
+          <div class="res ${
+            a.is_correct
+            ? 'good'
+            : 'bad'
+          }">
+
+            <b>${a.letter})</b>
+
+            ${esc(a.answer_text)}
+
+            <span style="
+              float:right;
+              font-size:11px;
+              font-weight:800
+            ">
+
+              ${
+                a.is_correct
+                ? 'SPRÁVNA'
+                : 'NESPRÁVNA'
+              }
+
+              ${
+                shown.has(a.letter)
+                ? ' • V TESTE'
+                : ' • NEZOBRAZENÁ'
+              }
+
+            </span>
+
+          </div>
+
+        `).join('')
+      }
+
+      ${
+        q.explanation
+        ? `
+          <p>
+            <b>Vysvetlenie:</b>
+            ${esc(q.explanation)}
+          </p>
+        `
+        : ''
+      }
+
+    </div>
+
+  `;
+}
+
+function newTest(){
+
+  $('setup').classList.remove('hidden');
+  $('testArea').classList.add('hidden');
+
+  scrollTo(0,0);
+}
+
+function renderAll(){
+
+  renderQuestions();
+  renderWrong();
+
+  $('info').textContent=
+    `V cloude: ${questions.length} otázok • chybné: ${wrong.size}`;
+
+  $('wn').textContent=
+    wrong.size
+    ? '('+wrong.size+')'
+    : '';
+}
+
+editor();
+init();
+
+</script>
 
 </body>
 </html>
