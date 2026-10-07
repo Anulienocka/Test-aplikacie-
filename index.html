@@ -43,6 +43,7 @@ textarea{min-height:85px}
 .badge{display:inline-block;padding:4px 8px;border-radius:99px;background:#eee;font-size:12px;margin-top:4px}
 .progress{height:8px;background:#e8e8ef;border-radius:99px;overflow:hidden}
 .progress div{height:100%;background:var(--p)}
+.pickbox{background:#f7f5ff;border:1px solid #d9d3ff;border-radius:12px;padding:12px;margin:14px 0}
 @media(max-width:650px){
   .row{grid-template-columns:1fr}
   .card{padding:14px}
@@ -108,27 +109,40 @@ textarea{min-height:85px}
 <button id="bioBtn" class="subjectBtn alt" onclick="chooseSubject('Biológia')">🧬 Biológia</button>
 </div>
 
-<div class="row">
-<div>
+<div class="pickbox">
+<label>Ako chceš vybrať otázky?</label>
+<select id="testType" onchange="changeTestType()">
+<option value="random">🎲 Náhodný test</option>
+<option value="numbers">🔢 Test podľa čísel otázok</option>
+</select>
+
+<div id="randomBox">
 <label>Počet otázok</label>
 <input id="count" type="number" min="1" value="20">
 </div>
-<div>
-<label>Možnosti</label>
+
+<div id="numbersBox" class="hidden">
+<label>Čísla otázok</label>
+<input id="questionNumbers" placeholder="napr. 1-50, 89, 120, 234">
+<p class="small">
+Môžeš zadať jednotlivé čísla aj rozsahy. Napríklad:
+<b>1-50, 89, 120, 234</b>
+</p>
+</div>
+</div>
+
+<label>Možnosti odpovedí</label>
 <select id="mode">
 <option value="4">4 možnosti</option>
 <option value="8">8 možností</option>
 </select>
-</div>
-</div>
 
 <p class="small">
-Pri 4 možnostiach sa náhodne vyberú 4 z ôsmich. Môžu byť všetky správne,
-všetky nesprávne alebo kombinácia.
+Pri 4 možnostiach sa náhodne vyberú 4 z ôsmich.
 </p>
 
 <div class="actions">
-<button onclick="start(false)">🎲 Spustiť test</button>
+<button onclick="start(false)">▶️ Spustiť test</button>
 <button class="alt" onclick="start(true)">🔁 Skúšať chybné</button>
 </div>
 
@@ -363,6 +377,56 @@ function chooseSubject(s){
   renderAll();
 }
 
+function changeTestType(){
+  let type=$('testType').value;
+  $('randomBox').classList.toggle('hidden',type!=='random');
+  $('numbersBox').classList.toggle('hidden',type!=='numbers');
+}
+
+function parseQuestionNumbers(text,max){
+  let result=[];
+  let invalid=[];
+
+  let parts=(text||'')
+    .split(',')
+    .map(x=>x.trim())
+    .filter(Boolean);
+
+  for(let part of parts){
+    if(/^\d+$/.test(part)){
+      let n=Number(part);
+      if(n>=1&&n<=max) result.push(n);
+      else invalid.push(n);
+      continue;
+    }
+
+    let match=part.match(/^(\d+)\s*-\s*(\d+)$/);
+
+    if(match){
+      let from=Number(match[1]);
+      let to=Number(match[2]);
+
+      if(from>to){
+        let tmp=from;
+        from=to;
+        to=tmp;
+      }
+
+      for(let n=from;n<=to;n++){
+        if(n>=1&&n<=max) result.push(n);
+        else invalid.push(n);
+      }
+    }else{
+      invalid.push(part);
+    }
+  }
+
+  result=[...new Set(result)];
+  invalid=[...new Set(invalid)];
+
+  return {result,invalid};
+}
+
 function editor(){
   $('editor').innerHTML='ABCDEFGH'.split('').map((l,i)=>`
     <div class="editor">
@@ -551,7 +615,10 @@ function start(onlyWrong,forcedSubject=null){
   let subject=forcedSubject||selectedSubject;
 
   let pool=questions.filter(q=>q.subject===subject);
-  if(onlyWrong)pool=pool.filter(q=>wrong.has(q.id));
+
+  if(onlyWrong){
+    pool=pool.filter(q=>wrong.has(q.id));
+  }
 
   if(!pool.length){
     return alert(onlyWrong
@@ -559,10 +626,31 @@ function start(onlyWrong,forcedSubject=null){
       : `Nemáš otázky z predmetu ${subject}.`);
   }
 
-  let n=Math.min(Math.max(1,+$('count').value||1),pool.length);
   let m=+$('mode').value;
 
-  pool=shuffle(pool).slice(0,n);
+  if(!onlyWrong && $('testType').value==='numbers'){
+    let parsed=parseQuestionNumbers($('questionNumbers').value,pool.length);
+
+    if(!parsed.result.length){
+      return alert('Zadaj čísla otázok. Napríklad: 1-50, 89, 120, 234');
+    }
+
+    if(parsed.invalid.length){
+      return alert(
+        `Tieto otázky v predmete ${subject} neexistujú alebo sú zadané nesprávne: `+
+        parsed.invalid.join(', ')+
+        `\n\nV predmete ${subject} máš ${pool.length} otázok.`
+      );
+    }
+
+    pool=parsed.result.map(n=>pool[n-1]);
+  }else if(!onlyWrong){
+    let n=Math.min(Math.max(1,+$('count').value||1),pool.length);
+    pool=shuffle(pool).slice(0,n);
+  }else{
+    let n=Math.min(Math.max(1,+$('count').value||1),pool.length);
+    pool=shuffle(pool).slice(0,n);
+  }
 
   test={
     subject,
@@ -721,9 +809,10 @@ function renderAll(){
 
 editor();
 chooseSubject('Chémia');
+changeTestType();
 init();
 </script>
 
 </body>
 </html>
-<!-- verzia bio-chem -->
+<!-- verzia vyber-otazok -->
