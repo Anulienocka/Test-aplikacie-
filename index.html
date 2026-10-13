@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="sk">
 <head>
@@ -110,39 +111,37 @@ textarea{min-height:85px}
 </div>
 
 <div class="pickbox">
-<label>Ako chceš vybrať otázky?</label>
+<label>Výber otázok</label>
 <select id="testType" onchange="changeTestType()">
 <option value="random">🎲 Náhodný test</option>
-<option value="numbers">🔢 Test podľa čísel otázok</option>
+<option value="numbers">🔢 Test podľa mojich čísel</option>
 </select>
-
 <div id="randomBox">
 <label>Počet otázok</label>
 <input id="count" type="number" min="1" value="20">
 </div>
-
 <div id="numbersBox" class="hidden">
 <label>Čísla otázok</label>
 <input id="questionNumbers" placeholder="napr. 1-50, 89, 120, 234">
-<p class="small">
-Môžeš zadať jednotlivé čísla aj rozsahy. Napríklad:
-<b>1-50, 89, 120, 234</b>
-</p>
+<p class="small">Zadaj čísla, ktoré si pridelila otázkam. Chýbajúce čísla aplikácia oznámi.</p>
 </div>
 </div>
-
-<label>Možnosti odpovedí</label>
+<div class="row"><div>
+<label>Možnosti</label>
 <select id="mode">
 <option value="4">4 možnosti</option>
 <option value="8">8 možností</option>
 </select>
+</div>
+</div>
 
 <p class="small">
-Pri 4 možnostiach sa náhodne vyberú 4 z ôsmich.
+Pri 4 možnostiach sa náhodne vyberú 4 z ôsmich. Môžu byť všetky správne,
+všetky nesprávne alebo kombinácia.
 </p>
 
 <div class="actions">
-<button onclick="start(false)">▶️ Spustiť test</button>
+<button onclick="start(false)">🎲 Spustiť test</button>
 <button class="alt" onclick="start(true)">🔁 Skúšať chybné</button>
 </div>
 
@@ -163,6 +162,8 @@ Pri 4 možnostiach sa náhodne vyberú 4 z ôsmich.
 <option value="Biológia">🧬 Biológia</option>
 </select>
 
+<label>Číslo otázky (1 až 1000)</label>
+<input id="qnumber" type="number" min="1" max="1000" step="1" placeholder="napr. 240">
 <label>Otázka</label>
 <textarea id="qt"></textarea>
 
@@ -378,53 +379,29 @@ function chooseSubject(s){
 }
 
 function changeTestType(){
-  let type=$('testType').value;
-  $('randomBox').classList.toggle('hidden',type!=='random');
-  $('numbersBox').classList.toggle('hidden',type!=='numbers');
+  let numbered=$('testType').value==='numbers';
+  $('numbersBox').classList.toggle('hidden',!numbered);
+  $('randomBox').classList.toggle('hidden',numbered);
 }
 
-function parseQuestionNumbers(text,max){
-  let result=[];
-  let invalid=[];
-
-  let parts=(text||'')
-    .split(',')
-    .map(x=>x.trim())
-    .filter(Boolean);
-
-  for(let part of parts){
-    if(/^\d+$/.test(part)){
-      let n=Number(part);
-      if(n>=1&&n<=max) result.push(n);
-      else invalid.push(n);
-      continue;
-    }
-
-    let match=part.match(/^(\d+)\s*-\s*(\d+)$/);
-
-    if(match){
-      let from=Number(match[1]);
-      let to=Number(match[2]);
-
-      if(from>to){
-        let tmp=from;
-        from=to;
-        to=tmp;
-      }
-
-      for(let n=from;n<=to;n++){
-        if(n>=1&&n<=max) result.push(n);
-        else invalid.push(n);
-      }
-    }else{
-      invalid.push(part);
-    }
+function parseQuestionNumbers(text){
+  const chunks=text.split(',').map(x=>x.trim());
+  if(!text.trim() || chunks.some(x=>!x))throw Error('Zadaj čísla napríklad 1-50, 89, 120, 234.');
+  const selected=new Set();
+  for(const chunk of chunks){
+    const m=chunk.match(/^(\d+)\s*-\s*(\d+)$/);
+    if(m){
+      const a=Number(m[1]),b=Number(m[2]);
+      if(!Number.isSafeInteger(a)||!Number.isSafeInteger(b)||a<1||b>1000||a>b)
+        throw Error('Rozsah musí byť od 1 do 1000 a od menšieho čísla po väčšie.');
+      for(let n=a;n<=b;n++)selected.add(n);
+    }else if(/^\d+$/.test(chunk)){
+      const n=Number(chunk);
+      if(!Number.isSafeInteger(n)||n<1||n>1000)throw Error('Čísla otázok musia byť od 1 do 1000.');
+      selected.add(n);
+    }else throw Error('Nesprávny zápis: '+chunk);
   }
-
-  result=[...new Set(result)];
-  invalid=[...new Set(invalid)];
-
-  return {result,invalid};
+  return [...selected].sort((a,b)=>a-b);
 }
 
 function editor(){
@@ -448,7 +425,7 @@ function previewImg(e){
 
 function resetForm(){
   editId=null;oldImagePath=null;newImageFile=null;
-  $('qt').value='';$('exp').value='';$('img').value='';
+  $('qt').value='';$('qnumber').value='';$('exp').value='';$('img').value='';
   $('qsubject').value='Chémia';
   $('preview').classList.add('hidden');
 
@@ -473,6 +450,7 @@ async function saveQuestion(){
   try{
     let text=$('qt').value.trim();
     let subject=$('qsubject').value;
+    let num=Number($('qnumber').value);
     let aa=[];
 
     for(let i=0;i<8;i++){
@@ -483,6 +461,10 @@ async function saveQuestion(){
       });
     }
 
+    if(!Number.isInteger(num)||num<1||num>1000||!$('qnumber').value.trim())
+      return alert('Zadaj číslo otázky od 1 do 1000.');
+    if(questions.some(q=>q.subject===subject&&q.question_number===num&&q.id!==editId))
+      return alert(`Otázka číslo ${num} už v predmete ${subject} existuje. Zvoľ iné číslo alebo uprav existujúcu otázku.`);
     if(!text)return alert('Napíš otázku.');
     if(aa.some(a=>!a.answer_text))return alert('Vyplň všetkých 8 odpovedí.');
 
@@ -493,6 +475,7 @@ async function saveQuestion(){
       let r=await sb.from('questions').update({
         question:text,
         subject,
+        question_number:num,
         image_url:imagePath,
         explanation:$('exp').value.trim()||null
       }).eq('id',qid);
@@ -506,6 +489,7 @@ async function saveQuestion(){
         user_id:user.id,
         question:text,
         subject,
+        question_number:num,
         image_url:imagePath,
         explanation:$('exp').value.trim()||null
       }).select().single();
@@ -534,6 +518,7 @@ function editQ(id){
   newImageFile=null;
 
   $('qt').value=q.question;
+  $('qnumber').value=q.question_number??'';
   $('exp').value=q.explanation||'';
   $('qsubject').value=q.subject||'Chémia';
 
@@ -567,11 +552,14 @@ async function delQ(id){
 function renderQuestions(){
   let filter=$('listSubject')?.value||'all';
   let qs=filter==='all'?questions:questions.filter(q=>q.subject===filter);
+  qs=[...qs].sort((a,b)=>a.subject.localeCompare(b.subject,'sk') ||
+    (a.question_number??Infinity)-(b.question_number??Infinity) ||
+    String(a.created_at||'').localeCompare(String(b.created_at||'')));
 
   $('qlist').innerHTML=qs.length?qs.map((q,i)=>`
     <div class="item">
       <div>
-        <b>${i+1}. ${esc(q.question)}</b>
+        <b>${q.question_number==null?"Bez čísla":q.question_number+"."} ${esc(q.question)}</b>
         <div><span class="badge">${q.subject==='Biológia'?'🧬':'🧪'} ${esc(q.subject)}</span></div>
         <div class="small">
           Správne: ${q.answers.filter(a=>a.is_correct).map(a=>a.letter).join(', ')||'žiadna'}
@@ -592,7 +580,7 @@ function renderWrong(){
   $('wlist').innerHTML=a.length?a.map((q,i)=>`
     <div class="item">
       <div>
-        <b>${i+1}. ${esc(q.question)}</b>
+        <b>${q.question_number==null?"Bez čísla":q.question_number+"."} ${esc(q.question)}</b>
         <div><span class="badge">${q.subject==='Biológia'?'🧬':'🧪'} ${esc(q.subject)}</span></div>
       </div>
       <button class="alt" onclick="removeWrong('${q.id}')">Odstrániť</button>
@@ -613,56 +601,33 @@ function startWrongSelected(){
 
 function start(onlyWrong,forcedSubject=null){
   let subject=forcedSubject||selectedSubject;
-
   let pool=questions.filter(q=>q.subject===subject);
+  if(onlyWrong)pool=pool.filter(q=>wrong.has(q.id));
 
-  if(onlyWrong){
-    pool=pool.filter(q=>wrong.has(q.id));
-  }
+  if(!pool.length)return alert(onlyWrong
+    ? `Nemáš chybné otázky z predmetu ${subject}.`
+    : `Nemáš otázky z predmetu ${subject}.`);
 
-  if(!pool.length){
-    return alert(onlyWrong
-      ? `Nemáš chybné otázky z predmetu ${subject}.`
-      : `Nemáš otázky z predmetu ${subject}.`);
-  }
-
-  let m=+$('mode').value;
-
-  if(!onlyWrong && $('testType').value==='numbers'){
-    let parsed=parseQuestionNumbers($('questionNumbers').value,pool.length);
-
-    if(!parsed.result.length){
-      return alert('Zadaj čísla otázok. Napríklad: 1-50, 89, 120, 234');
-    }
-
-    if(parsed.invalid.length){
-      return alert(
-        `Tieto otázky v predmete ${subject} neexistujú alebo sú zadané nesprávne: `+
-        parsed.invalid.join(', ')+
-        `\n\nV predmete ${subject} máš ${pool.length} otázok.`
-      );
-    }
-
-    pool=parsed.result.map(n=>pool[n-1]);
-  }else if(!onlyWrong){
-    let n=Math.min(Math.max(1,+$('count').value||1),pool.length);
-    pool=shuffle(pool).slice(0,n);
+  if(!onlyWrong&&$('testType').value==='numbers'){
+    let nums;
+    try{nums=parseQuestionNumbers($('questionNumbers').value)}
+    catch(e){return alert(e.message)}
+    const byNumber=new Map(pool.filter(q=>Number.isInteger(q.question_number))
+      .map(q=>[q.question_number,q]));
+    const missing=nums.filter(n=>!byNumber.has(n));
+    if(missing.length)return alert(`V predmete ${subject} ešte nemáš otázky číslo: ${missing.join(', ')}.`);
+    pool=nums.map(n=>byNumber.get(n));
   }else{
-    let n=Math.min(Math.max(1,+$('count').value||1),pool.length);
+    const n=Math.min(Math.max(1,+$('count').value||1),pool.length);
     pool=shuffle(pool).slice(0,n);
   }
 
+  const m=+$('mode').value;
   test={
     subject,
-    items:pool.map(q=>({
-      q,
-      opts:m===8?shuffle(q.answers):shuffle(q.answers).slice(0,4)
-    })),
-    i:0,
-    sel:[],
-    ans:[]
+    items:pool.map(q=>({q,opts:m===8?shuffle(q.answers):shuffle(q.answers).slice(0,4)})),
+    i:0,sel:[],ans:[]
   };
-
   tab('test');
   $('setup').classList.add('hidden');
   renderTest();
@@ -808,11 +773,11 @@ function renderAll(){
 }
 
 editor();
-chooseSubject('Chémia');
 changeTestType();
+chooseSubject('Chémia');
 init();
 </script>
 
 </body>
 </html>
-<!-- verzia vyber-otazok -->
+<!-- verzia vlastne-cisla-otazok -->
