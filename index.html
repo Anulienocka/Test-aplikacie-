@@ -6,21 +6,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#6750e8">
 <title>Môj test</title>
-
 <style>
-:root{
-  --p:#6750e8;--bg:#f6f6fb;--b:#e1e3ea;--m:#6b7280;
-  --g:#16784a;--gb:#e8f7ef;--r:#c93636;--rb:#fdecec
-}
+:root{--p:#6750e8;--bg:#f6f6fb;--b:#e1e3ea;--m:#6b7280;--g:#16784a;--gb:#e8f7ef;--r:#c93636;--rb:#fdecec}
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:#222}
-header{background:var(--p);color:#fff;padding:15px 0;position:sticky;top:0;z-index:10}
+header{background:var(--p);color:white;padding:15px 0;position:sticky;top:0;z-index:10}
 .wrap{max-width:960px;margin:auto;padding:0 14px}
-.card{background:#fff;border:1px solid var(--b);border-radius:16px;padding:18px;margin:13px 0;box-shadow:0 5px 20px #0000000a}
+.card{background:white;border:1px solid var(--b);border-radius:16px;padding:18px;margin:13px 0;box-shadow:0 5px 20px #0000000a}
 .hidden{display:none!important}
 .tabs,.actions,.subjects{display:flex;gap:8px;flex-wrap:wrap}
-.tabs{padding:12px 0;overflow:auto}
-button{border:0;border-radius:10px;padding:11px 14px;background:var(--p);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.tabs{padding:12px 0}
+button{border:0;border-radius:10px;padding:11px 14px;background:var(--p);color:white;font:inherit;font-weight:700;cursor:pointer}
 button.alt{background:#e9eaf1;color:#292b31}
 button.red{background:var(--r)}
 button.active{outline:3px solid #bdb3ff}
@@ -30,12 +26,15 @@ input,textarea,select{width:100%;padding:11px;border:1px solid var(--b);border-r
 textarea{min-height:85px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .small{font-size:13px;color:var(--m)}
-.editor{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:8px;border:1px solid var(--b);border-radius:10px;margin:7px 0}
+.editor{padding:12px;border:1px solid var(--b);border-radius:12px;margin:10px 0;background:#fafaff}
 .editor input[type=checkbox]{width:auto}
-.option{display:flex;gap:9px;padding:12px;border:2px solid var(--b);border-radius:11px;margin:8px 0}
+.answer-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.option{display:flex;gap:10px;padding:12px;border:2px solid var(--b);border-radius:11px;margin:8px 0;align-items:flex-start}
 .option.sel{border-color:var(--p);background:#f2f0ff}
-.option input{width:auto}
+.option input{width:auto;margin-top:5px}
 .qimg{max-width:100%;max-height:380px;display:block;margin:12px auto;border-radius:11px}
+.aimg{max-width:100%;max-height:220px;display:block;margin:8px 0;border-radius:9px;object-fit:contain}
+.previewimg{max-width:180px;max-height:140px;display:block;margin:8px 0;border-radius:9px}
 .res{padding:10px;border:2px solid;border-radius:10px;margin:6px 0}
 .res.good{background:var(--gb);border-color:var(--g);color:#12623d}
 .res.bad{background:var(--rb);border-color:var(--r);color:#962626}
@@ -46,22 +45,20 @@ textarea{min-height:85px}
 .progress div{height:100%;background:var(--p)}
 .pickbox{background:#f7f5ff;border:1px solid #d9d3ff;border-radius:12px;padding:12px;margin:14px 0}
 @media(max-width:650px){
-  .row{grid-template-columns:1fr}
-  .card{padding:14px}
-  .actions button,.subjects button{flex:1 1 auto}
+.row{grid-template-columns:1fr}
+.card{padding:14px}
+.actions button,.subjects button{flex:1 1 auto}
+.item{align-items:flex-start;flex-direction:column}
 }
 </style>
 </head>
-
 <body>
-
 <header>
 <div class="wrap">
 <b>📚 Môj test ☁️</b>
 <span id="who" style="float:right;font-size:12px">Neprihlásená</span>
 </div>
 </header>
-
 <main class="wrap">
 
 <section id="config" class="card">
@@ -85,13 +82,12 @@ textarea{min-height:85px}
 <div class="actions" style="margin-top:12px">
 <button onclick="signIn()">Prihlásiť</button>
 <button class="alt" onclick="signUp()">Vytvoriť účet</button>
-<button class="alt" onclick="changeConnection()">⚙️ Zmeniť Supabase pripojenie</button>
+<button class="alt" onclick="changeConnection()">⚙️ Zmeniť pripojenie</button>
 </div>
 <p id="authmsg" class="small"></p>
 </section>
 
 <div id="app" class="hidden">
-
 <div class="tabs">
 <button onclick="tab('test')">Test</button>
 <button class="alt" onclick="tab('questions')">Otázky</button>
@@ -101,9 +97,7 @@ textarea{min-height:85px}
 
 <section id="test">
 <div id="setup" class="card">
-
 <h2>Vytvoriť test</h2>
-
 <label>Predmet</label>
 <div class="subjects">
 <button id="chemBtn" class="subjectBtn" onclick="chooseSubject('Chémia')">🧪 Chémia</button>
@@ -126,55 +120,42 @@ textarea{min-height:85px}
 <p class="small">Zadaj čísla, ktoré si pridelila otázkam. Chýbajúce čísla aplikácia oznámi.</p>
 </div>
 </div>
-<div class="row"><div>
+
 <label>Možnosti</label>
 <select id="mode">
 <option value="4">4 možnosti</option>
 <option value="8">8 možností</option>
 </select>
-</div>
-</div>
-
-<p class="small">
-Pri 4 možnostiach sa náhodne vyberú 4 z ôsmich. Môžu byť všetky správne,
-všetky nesprávne alebo kombinácia.
-</p>
-
+<p class="small">Pri 4 možnostiach sa náhodne vyberú 4 z ôsmich.</p>
 <div class="actions">
 <button onclick="start(false)">🎲 Spustiť test</button>
 <button class="alt" onclick="start(true)">🔁 Skúšať chybné</button>
 </div>
-
 <p id="info" class="small"></p>
 </div>
-
 <div id="testArea" class="hidden"></div>
 </section>
 
 <section id="questions" class="hidden">
-
 <div class="card">
 <h2>➕ Pridať otázku</h2>
-
 <label>Predmet</label>
 <select id="qsubject">
 <option value="Chémia">🧪 Chémia</option>
 <option value="Biológia">🧬 Biológia</option>
 </select>
-
 <label>Číslo otázky (1 až 1000)</label>
 <input id="qnumber" type="number" min="1" max="1000" step="1" placeholder="napr. 240">
 <label>Otázka</label>
 <textarea id="qt"></textarea>
-
-<label>Obrázok (nepovinný)</label>
+<label>Obrázok k otázke (nepovinný)</label>
 <input id="img" type="file" accept="image/*" onchange="previewImg(event)">
 <img id="preview" class="qimg hidden">
-
 <label>Vysvetlenie (nepovinné)</label>
 <textarea id="exp"></textarea>
 
 <h3>Odpovede A–H</h3>
+<p class="small">Každá odpoveď môže obsahovať text, obrázok alebo oboje. Zaškrtni správne odpovede.</p>
 <div id="editor"></div>
 
 <div class="actions">
@@ -186,14 +167,12 @@ všetky nesprávne alebo kombinácia.
 
 <div class="card">
 <h2>Moje otázky</h2>
-
 <label>Zobraziť predmet</label>
 <select id="listSubject" onchange="renderQuestions()">
 <option value="all">Všetky</option>
 <option value="Chémia">🧪 Chémia</option>
 <option value="Biológia">🧬 Biológia</option>
 </select>
-
 <div id="qlist"></div>
 </div>
 </section>
@@ -201,20 +180,16 @@ všetky nesprávne alebo kombinácia.
 <section id="wrong" class="hidden">
 <div class="card">
 <h2>❌ Chybné otázky</h2>
-
 <label>Predmet</label>
 <select id="wrongSubject" onchange="renderWrong()">
 <option value="all">Všetky</option>
 <option value="Chémia">🧪 Chémia</option>
 <option value="Biológia">🧬 Biológia</option>
 </select>
-
 <p class="small">Otázky, v ktorých urobíš chybu, sa sem automaticky uložia.</p>
-
 <div class="actions">
 <button onclick="startWrongSelected()">🔁 Skúšať tieto chybné</button>
 </div>
-
 <div id="wlist"></div>
 </div>
 </section>
@@ -226,558 +201,573 @@ všetky nesprávne alebo kombinácia.
 <p class="small">Na PC aj mobile sa prihlás rovnakým účtom.</p>
 <div class="actions">
 <button class="alt" onclick="reload()">🔄 Synchronizovať teraz</button>
-<button class="alt" onclick="changeConnection()">⚙️ Zmeniť Supabase pripojenie</button>
+<button class="alt" onclick="changeConnection()">⚙️ Zmeniť pripojenie</button>
 <button class="red" onclick="logout()">Odhlásiť</button>
 </div>
 </div>
 </section>
-
 </div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-let sb,user,questions=[],wrong=new Set(),newImageFile=null,editId=null,oldImagePath=null,test={};
+let sb,user,questions=[],wrong=new Set();
+let newImageFile=null,editId=null,oldImagePath=null,test={};
 let selectedSubject='Chémia';
+let answerFiles=Array(8).fill(null);
+let answerOldPaths=Array(8).fill(null);
+let answerRemove=Array(8).fill(false);
 
 const $=x=>document.getElementById(x);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({
+'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[c]));
+const shuffle=a=>{
+const x=[...a];
+for(let i=x.length-1;i>0;i--){
+const j=Math.floor(Math.random()*(i+1));
+[x[i],x[j]]=[x[j],x[i]];
+}
+return x;
+};
 
 function normalizeUrl(u){
-  u=(u||'').trim().replace(/\/+$/,'');
-  u=u.replace(/\/rest\/v1$/,'');
-  return u;
+return (u||'').trim().replace(/\/+$/,'').replace(/\/rest\/v1$/,'');
 }
-
 function validProjectUrl(u){
-  return /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(u);
+return /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(u);
 }
-
 function init(){
-  let u=normalizeUrl(localStorage.getItem('quiz_sb_url'));
-  let k=localStorage.getItem('quiz_sb_key');
-
-  if(u&&k&&validProjectUrl(u)){
-    localStorage.setItem('quiz_sb_url',u);
-    $('url').value=u;
-    $('key').value=k;
-    connect(u,k);
-  }else{
-    if(u)$('url').value=u;
-    if(k)$('key').value=k;
-  }
+let u=normalizeUrl(localStorage.getItem('quiz_sb_url'));
+let k=localStorage.getItem('quiz_sb_key');
+if(u&&k&&validProjectUrl(u)){
+$('url').value=u;
+$('key').value=k;
+connect(u,k);
+}else{
+if(u)$('url').value=u;
+if(k)$('key').value=k;
 }
-
+}
 function saveConfig(){
-  let u=normalizeUrl($('url').value);
-  let k=$('key').value.trim();
-  $('url').value=u;
-
-  if(!u||!k)return alert('Vyplň Project URL aj Publishable key.');
-  if(!validProjectUrl(u))return alert('Project URL má vyzerať napríklad https://xxxxx.supabase.co bez /rest/v1/.');
-
-  localStorage.setItem('quiz_sb_url',u);
-  localStorage.setItem('quiz_sb_key',k);
-  connect(u,k);
+let u=normalizeUrl($('url').value);
+let k=$('key').value.trim();
+if(!u||!k)return alert('Vyplň Project URL aj Publishable key.');
+if(!validProjectUrl(u))return alert('Skontroluj Project URL.');
+localStorage.setItem('quiz_sb_url',u);
+localStorage.setItem('quiz_sb_key',k);
+connect(u,k);
 }
-
 function changeConnection(){
-  localStorage.removeItem('quiz_sb_url');
-  localStorage.removeItem('quiz_sb_key');
-  try{if(sb)sb.auth.signOut()}catch(e){}
-  location.reload();
+localStorage.removeItem('quiz_sb_url');
+localStorage.removeItem('quiz_sb_key');
+try{if(sb)sb.auth.signOut()}catch(e){}
+location.reload();
 }
-
 async function connect(u,k){
-  try{
-    sb=supabase.createClient(u,k);
-    $('config').classList.add('hidden');
-    $('auth').classList.remove('hidden');
-    let {data}=await sb.auth.getSession();
-    if(data.session){
-      user=data.session.user;
-      enter();
-    }
-  }catch(e){alert(e.message)}
+try{
+sb=supabase.createClient(u,k);
+$('config').classList.add('hidden');
+$('auth').classList.remove('hidden');
+const {data}=await sb.auth.getSession();
+if(data.session){
+user=data.session.user;
+enter();
 }
-
+}catch(e){alert(e.message)}
+}
 async function signUp(){
-  const email=$('email').value.trim();
-  const password=$('password').value;
-  if(!email||!password){$('authmsg').textContent='Vyplň e-mail aj heslo.';return}
-
-  let {data,error}=await sb.auth.signUp({email,password});
-  if(error){$('authmsg').textContent=error.message;return}
-
-  $('authmsg').textContent=data.session?'Účet vytvorený.':'Skontroluj e-mail a potvrď registráciu.';
-  if(data.session){user=data.user;enter()}
+const email=$('email').value.trim();
+const password=$('password').value;
+if(!email||!password)return $('authmsg').textContent='Vyplň e-mail aj heslo.';
+const {data,error}=await sb.auth.signUp({email,password});
+if(error)return $('authmsg').textContent=error.message;
+$('authmsg').textContent=data.session?'Účet vytvorený.':'Skontroluj e-mail a potvrď registráciu.';
+if(data.session){user=data.user;enter()}
 }
-
 async function signIn(){
-  const email=$('email').value.trim();
-  const password=$('password').value;
-  if(!email||!password){$('authmsg').textContent='Vyplň e-mail aj heslo.';return}
-
-  let {data,error}=await sb.auth.signInWithPassword({email,password});
-  if(error){$('authmsg').textContent=error.message;return}
-
-  user=data.user;
-  enter();
+const email=$('email').value.trim();
+const password=$('password').value;
+if(!email||!password)return $('authmsg').textContent='Vyplň e-mail aj heslo.';
+const {data,error}=await sb.auth.signInWithPassword({email,password});
+if(error)return $('authmsg').textContent=error.message;
+user=data.user;
+enter();
 }
-
 async function enter(){
-  $('auth').classList.add('hidden');
-  $('app').classList.remove('hidden');
-  $('who').textContent=user.email;
-  $('accountEmail').textContent='Prihlásená: '+user.email;
-  await reload();
+$('auth').classList.add('hidden');
+$('app').classList.remove('hidden');
+$('who').textContent=user.email;
+$('accountEmail').textContent='Prihlásená: '+user.email;
+await reload();
 }
-
 async function logout(){
-  await sb.auth.signOut();
-  location.reload();
+await sb.auth.signOut();
+location.reload();
 }
 
 async function signedImage(path){
-  if(!path)return null;
-  let {data,error}=await sb.storage.from('question-images').createSignedUrl(path,3600);
-  return error?null:data.signedUrl;
+if(!path)return null;
+const {data,error}=await sb.storage.from('question-images').createSignedUrl(path,3600);
+return error?null:data.signedUrl;
 }
-
 async function reload(){
-  let r=await sb.from('questions').select('*,answers(*)').order('created_at');
-  if(r.error)return alert(r.error.message);
-
-  questions=r.data||[];
-
-  for(let q of questions){
-    q.subject=q.subject||'Chémia';
-    q.answers=(q.answers||[]).sort((a,b)=>a.letter.localeCompare(b.letter));
-    q.signed_image=await signedImage(q.image_url);
-  }
-
-  let w=await sb.from('wrong_questions').select('question_id');
-  if(w.error)return alert(w.error.message);
-
-  wrong=new Set((w.data||[]).map(x=>x.question_id));
-  renderAll();
+const r=await sb.from('questions').select('*,answers(*)').order('created_at');
+if(r.error)return alert(r.error.message);
+questions=r.data||[];
+for(const q of questions){
+q.subject=q.subject||'Chémia';
+q.answers=(q.answers||[]).sort((a,b)=>a.letter.localeCompare(b.letter));
+q.signed_image=await signedImage(q.image_url);
+for(const a of q.answers){
+a.signed_image=await signedImage(a.image_url);
 }
-
+}
+const w=await sb.from('wrong_questions').select('question_id');
+if(w.error)return alert(w.error.message);
+wrong=new Set((w.data||[]).map(x=>x.question_id));
+renderAll();
+}
 function tab(id){
-  ['test','questions','wrong','account'].forEach(x=>$(x).classList.toggle('hidden',x!==id));
-  if(id==='questions')renderQuestions();
-  if(id==='wrong')renderWrong();
+['test','questions','wrong','account'].forEach(x=>$(x).classList.toggle('hidden',x!==id));
+if(id==='questions')renderQuestions();
+if(id==='wrong')renderWrong();
 }
-
 function chooseSubject(s){
-  selectedSubject=s;
-  $('chemBtn').className='subjectBtn '+(s==='Chémia'?'active':'alt');
-  $('bioBtn').className='subjectBtn '+(s==='Biológia'?'active':'alt');
-  renderAll();
+selectedSubject=s;
+$('chemBtn').className='subjectBtn '+(s==='Chémia'?'active':'alt');
+$('bioBtn').className='subjectBtn '+(s==='Biológia'?'active':'alt');
+renderAll();
 }
-
 function changeTestType(){
-  let numbered=$('testType').value==='numbers';
-  $('numbersBox').classList.toggle('hidden',!numbered);
-  $('randomBox').classList.toggle('hidden',numbered);
+const numbered=$('testType').value==='numbers';
+$('numbersBox').classList.toggle('hidden',!numbered);
+$('randomBox').classList.toggle('hidden',numbered);
 }
-
 function parseQuestionNumbers(text){
-  const chunks=text.split(',').map(x=>x.trim());
-  if(!text.trim() || chunks.some(x=>!x))throw Error('Zadaj čísla napríklad 1-50, 89, 120, 234.');
-  const selected=new Set();
-  for(const chunk of chunks){
-    const m=chunk.match(/^(\d+)\s*-\s*(\d+)$/);
-    if(m){
-      const a=Number(m[1]),b=Number(m[2]);
-      if(!Number.isSafeInteger(a)||!Number.isSafeInteger(b)||a<1||b>1000||a>b)
-        throw Error('Rozsah musí byť od 1 do 1000 a od menšieho čísla po väčšie.');
-      for(let n=a;n<=b;n++)selected.add(n);
-    }else if(/^\d+$/.test(chunk)){
-      const n=Number(chunk);
-      if(!Number.isSafeInteger(n)||n<1||n>1000)throw Error('Čísla otázok musia byť od 1 do 1000.');
-      selected.add(n);
-    }else throw Error('Nesprávny zápis: '+chunk);
-  }
-  return [...selected].sort((a,b)=>a-b);
+const chunks=text.split(',').map(x=>x.trim());
+if(!text.trim()||chunks.some(x=>!x))throw Error('Zadaj čísla napríklad 1-50, 89, 120.');
+const selected=new Set();
+for(const chunk of chunks){
+const m=chunk.match(/^(\d+)\s*-\s*(\d+)$/);
+if(m){
+const a=Number(m[1]),b=Number(m[2]);
+if(!Number.isSafeInteger(a)||!Number.isSafeInteger(b)||a<1||b>1000||a>b)
+throw Error('Rozsah musí byť od 1 do 1000.');
+for(let n=a;n<=b;n++)selected.add(n);
+}else if(/^\d+$/.test(chunk)){
+const n=Number(chunk);
+if(!Number.isSafeInteger(n)||n<1||n>1000)throw Error('Čísla musia byť od 1 do 1000.');
+selected.add(n);
+}else throw Error('Nesprávny zápis: '+chunk);
+}
+return [...selected].sort((a,b)=>a-b);
 }
 
 function editor(){
-  $('editor').innerHTML='ABCDEFGH'.split('').map((l,i)=>`
-    <div class="editor">
-      <b>${l}</b>
-      <input id="a${i}" placeholder="Odpoveď ${l}">
-      <label style="margin:0;font-weight:500">
-        <input id="c${i}" type="checkbox"> správna
-      </label>
-    </div>
-  `).join('');
+$('editor').innerHTML='ABCDEFGH'.split('').map((l,i)=>`
+<div class="editor">
+<div class="answer-head">
+<b>Odpoveď ${l}</b>
+<label style="margin:0;font-weight:500">
+<input id="c${i}" type="checkbox"> Správna odpoveď
+</label>
+</div>
+<label>Text odpovede ${l} (nepovinný, ak vložíš obrázok)</label>
+<input id="a${i}" placeholder="Napíš odpoveď ${l}">
+<label>Obrázok k odpovedi ${l} (nepovinný)</label>
+<input id="ai${i}" type="file" accept="image/*" onchange="previewAnswer(${i})">
+<img id="ap${i}" class="previewimg hidden" alt="Náhľad odpovede ${l}">
+<button type="button" class="alt hidden" id="ar${i}" onclick="removeAnswerImage(${i})">
+Odstrániť obrázok
+</button>
+</div>
+`).join('');
 }
-
 function previewImg(e){
-  newImageFile=e.target.files[0]||null;
-  if(!newImageFile)return;
-  $('preview').src=URL.createObjectURL(newImageFile);
-  $('preview').classList.remove('hidden');
+newImageFile=e.target.files[0]||null;
+if(!newImageFile)return;
+$('preview').src=URL.createObjectURL(newImageFile);
+$('preview').classList.remove('hidden');
 }
-
+function previewAnswer(i){
+const file=$('ai'+i).files[0]||null;
+answerFiles[i]=file;
+if(!file)return;
+answerRemove[i]=false;
+$('ap'+i).src=URL.createObjectURL(file);
+$('ap'+i).classList.remove('hidden');
+$('ar'+i).classList.remove('hidden');
+}
+function removeAnswerImage(i){
+answerFiles[i]=null;
+answerOldPaths[i]=null;
+answerRemove[i]=true;
+$('ai'+i).value='';
+$('ap'+i).removeAttribute('src');
+$('ap'+i).classList.add('hidden');
+$('ar'+i).classList.add('hidden');
+}
 function resetForm(){
-  editId=null;oldImagePath=null;newImageFile=null;
-  $('qt').value='';$('qnumber').value='';$('exp').value='';$('img').value='';
-  $('qsubject').value='Chémia';
-  $('preview').classList.add('hidden');
-
-  for(let i=0;i<8;i++){
-    $('a'+i).value='';
-    $('c'+i).checked=false;
-  }
+editId=null;
+oldImagePath=null;
+newImageFile=null;
+answerFiles=Array(8).fill(null);
+answerOldPaths=Array(8).fill(null);
+answerRemove=Array(8).fill(false);
+$('qt').value='';
+$('qnumber').value='';
+$('exp').value='';
+$('img').value='';
+$('qsubject').value='Chémia';
+$('preview').classList.add('hidden');
+for(let i=0;i<8;i++){
+$('a'+i).value='';
+$('c'+i).checked=false;
+$('ai'+i).value='';
+$('ap'+i).removeAttribute('src');
+$('ap'+i).classList.add('hidden');
+$('ar'+i).classList.add('hidden');
 }
-
+}
+async function uploadFile(file){
+if(!file)return null;
+if(!file.type.startsWith('image/'))throw Error('Vyber obrázok.');
+if(file.size>10*1024*1024)throw Error('Obrázok je príliš veľký. Maximum je 10 MB.');
+const ext=(file.name.split('.').pop()||'jpg').replace(/[^a-zA-Z0-9]/g,'').toLowerCase();
+const path=`${user.id}/${crypto.randomUUID()}.${ext}`;
+const r=await sb.storage.from('question-images').upload(path,file,{upsert:false,contentType:file.type});
+if(r.error)throw r.error;
+return path;
+}
 async function uploadImage(){
-  if(!newImageFile)return oldImagePath;
-
-  let ext=(newImageFile.name.split('.').pop()||'jpg').replace(/[^a-zA-Z0-9]/g,'');
-  let path=`${user.id}/${crypto.randomUUID()}.${ext}`;
-
-  let r=await sb.storage.from('question-images').upload(path,newImageFile,{upsert:false});
-  if(r.error)throw r.error;
-  return path;
+if(!newImageFile)return oldImagePath;
+return await uploadFile(newImageFile);
 }
-
 async function saveQuestion(){
-  try{
-    let text=$('qt').value.trim();
-    let subject=$('qsubject').value;
-    let num=Number($('qnumber').value);
-    let aa=[];
+try{
+const text=$('qt').value.trim();
+const subject=$('qsubject').value;
+const num=Number($('qnumber').value);
+if(!Number.isInteger(num)||num<1||num>1000||!$('qnumber').value.trim())
+return alert('Zadaj číslo otázky od 1 do 1000.');
+if(questions.some(q=>q.subject===subject&&q.question_number===num&&q.id!==editId))
+return alert(`Otázka číslo ${num} už v predmete ${subject} existuje.`);
+if(!text)return alert('Napíš otázku.');
 
-    for(let i=0;i<8;i++){
-      aa.push({
-        letter:'ABCDEFGH'[i],
-        answer_text:$('a'+i).value.trim(),
-        is_correct:$('c'+i).checked
-      });
-    }
-
-    if(!Number.isInteger(num)||num<1||num>1000||!$('qnumber').value.trim())
-      return alert('Zadaj číslo otázky od 1 do 1000.');
-    if(questions.some(q=>q.subject===subject&&q.question_number===num&&q.id!==editId))
-      return alert(`Otázka číslo ${num} už v predmete ${subject} existuje. Zvoľ iné číslo alebo uprav existujúcu otázku.`);
-    if(!text)return alert('Napíš otázku.');
-    if(aa.some(a=>!a.answer_text))return alert('Vyplň všetkých 8 odpovedí.');
-
-    let imagePath=await uploadImage();
-    let qid=editId;
-
-    if(qid){
-      let r=await sb.from('questions').update({
-        question:text,
-        subject,
-        question_number:num,
-        image_url:imagePath,
-        explanation:$('exp').value.trim()||null
-      }).eq('id',qid);
-
-      if(r.error)throw r.error;
-
-      let d=await sb.from('answers').delete().eq('question_id',qid);
-      if(d.error)throw d.error;
-    }else{
-      let r=await sb.from('questions').insert({
-        user_id:user.id,
-        question:text,
-        subject,
-        question_number:num,
-        image_url:imagePath,
-        explanation:$('exp').value.trim()||null
-      }).select().single();
-
-      if(r.error)throw r.error;
-      qid=r.data.id;
-    }
-
-    let a=await sb.from('answers').insert(aa.map(x=>({...x,question_id:qid})));
-    if(a.error)throw a.error;
-
-    resetForm();
-    $('qmsg').textContent='Uložené do cloudu ☁️';
-    await reload();
-    tab('questions');
-
-  }catch(e){
-    alert('Chyba: '+e.message);
-  }
+const aa=[];
+for(let i=0;i<8;i++){
+const answerText=$('a'+i).value.trim();
+const hasImage=!!answerFiles[i]||(!answerRemove[i]&&!!answerOldPaths[i]);
+if(!answerText&&!hasImage)
+return alert(`Pri odpovedi ${'ABCDEFGH'[i]} musíš vyplniť text alebo vložiť obrázok.`);
+aa.push({
+letter:'ABCDEFGH'[i],
+answer_text:answerText,
+is_correct:$('c'+i).checked,
+image_url:null
+});
 }
 
+$('qmsg').textContent='Ukladám otázku a obrázky...';
+const imagePath=await uploadImage();
+
+for(let i=0;i<8;i++){
+aa[i].image_url=answerFiles[i]
+?await uploadFile(answerFiles[i])
+:(answerRemove[i]?null:answerOldPaths[i]);
+}
+
+let qid=editId;
+if(qid){
+const r=await sb.from('questions').update({
+question:text,subject,question_number:num,
+image_url:imagePath,explanation:$('exp').value.trim()||null
+}).eq('id',qid);
+if(r.error)throw r.error;
+
+// Najprv aktualizujeme existujúce odpovede.
+// Zachováme ich ID aj prepojenie s otázkou.
+const existing=questions.find(q=>q.id===qid)?.answers||[];
+for(const a of aa){
+const old=existing.find(x=>x.letter===a.letter);
+if(old){
+const r=await sb.from('answers').update({
+answer_text:a.answer_text,
+is_correct:a.is_correct,
+image_url:a.image_url
+}).eq('id',old.id);
+if(r.error)throw r.error;
+}else{
+const r=await sb.from('answers').insert({
+...a,question_id:qid
+});
+if(r.error)throw r.error;
+}
+}
+}else{
+const r=await sb.from('questions').insert({
+user_id:user.id,question:text,subject,
+question_number:num,image_url:imagePath,
+explanation:$('exp').value.trim()||null
+}).select().single();
+if(r.error)throw r.error;
+qid=r.data.id;
+const a=await sb.from('answers').insert(aa.map(x=>({...x,question_id:qid})));
+if(a.error)throw a.error;
+}
+resetForm();
+$('qmsg').textContent='Uložené do cloudu ☁️';
+await reload();
+tab('questions');
+}catch(e){
+$('qmsg').textContent='Uloženie sa nepodarilo.';
+alert('Chyba: '+e.message);
+}
+}
 function editQ(id){
-  let q=questions.find(x=>x.id===id);
-  editId=id;
-  oldImagePath=q.image_url||null;
-  newImageFile=null;
+const q=questions.find(x=>x.id===id);
+if(!q)return;
+editId=id;
+oldImagePath=q.image_url||null;
+newImageFile=null;
+$('qt').value=q.question;
+$('qnumber').value=q.question_number??'';
+$('exp').value=q.explanation||'';
+$('qsubject').value=q.subject||'Chémia';
+$('img').value='';
 
-  $('qt').value=q.question;
-  $('qnumber').value=q.question_number??'';
-  $('exp').value=q.explanation||'';
-  $('qsubject').value=q.subject||'Chémia';
-
-  for(let i=0;i<8;i++){
-    let a=q.answers.find(x=>x.letter==='ABCDEFGH'[i]);
-    $('a'+i).value=a?.answer_text||'';
-    $('c'+i).checked=!!a?.is_correct;
-  }
-
-  if(q.signed_image){
-    $('preview').src=q.signed_image;
-    $('preview').classList.remove('hidden');
-  }else{
-    $('preview').classList.add('hidden');
-  }
-
-  scrollTo(0,0);
+for(let i=0;i<8;i++){
+const a=q.answers.find(x=>x.letter==='ABCDEFGH'[i]);
+$('a'+i).value=a?.answer_text||'';
+$('c'+i).checked=!!a?.is_correct;
+$('ai'+i).value='';
+answerFiles[i]=null;
+answerOldPaths[i]=a?.image_url||null;
+answerRemove[i]=false;
+if(a?.signed_image){
+$('ap'+i).src=a.signed_image;
+$('ap'+i).classList.remove('hidden');
+$('ar'+i).classList.remove('hidden');
+}else{
+$('ap'+i).removeAttribute('src');
+$('ap'+i).classList.add('hidden');
+$('ar'+i).classList.add('hidden');
 }
-
+}
+if(q.signed_image){
+$('preview').src=q.signed_image;
+$('preview').classList.remove('hidden');
+}else{
+$('preview').classList.add('hidden');
+}
+tab('questions');
+scrollTo(0,0);
+}
 async function delQ(id){
-  if(!confirm('Vymazať otázku?'))return;
-
-  let q=questions.find(x=>x.id===id);
-  let r=await sb.from('questions').delete().eq('id',id);
-  if(r.error)return alert(r.error.message);
-
-  if(q?.image_url)await sb.storage.from('question-images').remove([q.image_url]);
-  await reload();
+if(!confirm('Vymazať otázku?'))return;
+const q=questions.find(x=>x.id===id);
+const r=await sb.from('questions').delete().eq('id',id);
+if(r.error)return alert(r.error.message);
+if(q?.image_url)await sb.storage.from('question-images').remove([q.image_url]);
+await reload();
 }
-
 function renderQuestions(){
-  let filter=$('listSubject')?.value||'all';
-  let qs=filter==='all'?questions:questions.filter(q=>q.subject===filter);
-  qs=[...qs].sort((a,b)=>a.subject.localeCompare(b.subject,'sk') ||
-    (a.question_number??Infinity)-(b.question_number??Infinity) ||
-    String(a.created_at||'').localeCompare(String(b.created_at||'')));
-
-  $('qlist').innerHTML=qs.length?qs.map((q,i)=>`
-    <div class="item">
-      <div>
-        <b>${q.question_number==null?"Bez čísla":q.question_number+"."} ${esc(q.question)}</b>
-        <div><span class="badge">${q.subject==='Biológia'?'🧬':'🧪'} ${esc(q.subject)}</span></div>
-        <div class="small">
-          Správne: ${q.answers.filter(a=>a.is_correct).map(a=>a.letter).join(', ')||'žiadna'}
-        </div>
-      </div>
-      <div class="actions">
-        <button class="alt" onclick="editQ('${q.id}')">Upraviť</button>
-        <button class="red" onclick="delQ('${q.id}')">Zmazať</button>
-      </div>
-    </div>
-  `).join(''):'<p class="small">V tomto predmete zatiaľ nemáš otázky.</p>';
+const filter=$('listSubject')?.value||'all';
+let qs=filter==='all'?questions:questions.filter(q=>q.subject===filter);
+qs=[...qs].sort((a,b)=>a.subject.localeCompare(b.subject,'sk')||
+(a.question_number??Infinity)-(b.question_number??Infinity)||
+String(a.created_at||'').localeCompare(String(b.created_at||'')));
+$('qlist').innerHTML=qs.length?qs.map(q=>`
+<div class="item">
+<div>
+<b>${q.question_number==null?'Bez čísla':q.question_number+'.'} ${esc(q.question)}</b>
+<div><span class="badge">${q.subject==='Biológia'?'🧬':'🧪'} ${esc(q.subject)}</span></div>
+<div class="small">Správne: ${q.answers.filter(a=>a.is_correct).map(a=>a.letter).join(', ')||'žiadna'}</div>
+<div class="small">Obrázky v odpovediach: ${q.answers.filter(a=>a.image_url).map(a=>a.letter).join(', ')||'žiadne'}</div>
+</div>
+<div class="actions">
+<button class="alt" onclick="editQ('${q.id}')">Upraviť</button>
+<button class="red" onclick="delQ('${q.id}')">Zmazať</button>
+</div>
+</div>
+`).join(''):'<p class="small">V tomto predmete zatiaľ nemáš otázky.</p>';
 }
-
 function renderWrong(){
-  let filter=$('wrongSubject')?.value||'all';
-  let a=questions.filter(q=>wrong.has(q.id)&&(filter==='all'||q.subject===filter));
-
-  $('wlist').innerHTML=a.length?a.map((q,i)=>`
-    <div class="item">
-      <div>
-        <b>${q.question_number==null?"Bez čísla":q.question_number+"."} ${esc(q.question)}</b>
-        <div><span class="badge">${q.subject==='Biológia'?'🧬':'🧪'} ${esc(q.subject)}</span></div>
-      </div>
-      <button class="alt" onclick="removeWrong('${q.id}')">Odstrániť</button>
-    </div>
-  `).join(''):'<p class="small">Priečinok je prázdny. 🎉</p>';
+const filter=$('wrongSubject')?.value||'all';
+let a=questions.filter(q=>wrong.has(q.id)&&(filter==='all'||q.subject===filter));
+a=[...a].sort((x,y)=>x.subject.localeCompare(y.subject,'sk')||
+(x.question_number??Infinity)-(y.question_number??Infinity));
+$('wlist').innerHTML=a.length?a.map(q=>`
+<div class="item">
+<div>
+<b>${q.question_number==null?'Bez čísla':q.question_number+'.'} ${esc(q.question)}</b>
+<div><span class="badge">${q.subject==='Biológia'?'🧬':'🧪'} ${esc(q.subject)}</span></div>
+</div>
+<button class="alt" onclick="removeWrong('${q.id}')">Odstrániť</button>
+</div>
+`).join(''):'<p class="small">Priečinok je prázdny. 🎉</p>';
 }
-
 async function removeWrong(id){
-  await sb.from('wrong_questions').delete().eq('user_id',user.id).eq('question_id',id);
-  await reload();
+const r=await sb.from('wrong_questions').delete().eq('user_id',user.id).eq('question_id',id);
+if(r.error)return alert(r.error.message);
+await reload();
 }
-
 function startWrongSelected(){
-  let s=$('wrongSubject').value;
-  if(s==='all')start(true,null);
-  else start(true,s);
+const s=$('wrongSubject').value;
+start(true,s==='all'?null:s);
 }
-
 function start(onlyWrong,forcedSubject=null){
-  let subject=forcedSubject||selectedSubject;
-  let pool=questions.filter(q=>q.subject===subject);
-  if(onlyWrong)pool=pool.filter(q=>wrong.has(q.id));
+let subject=forcedSubject||selectedSubject;
+let pool=questions.filter(q=>q.subject===subject);
+if(onlyWrong)pool=pool.filter(q=>wrong.has(q.id));
+if(!pool.length)return alert(onlyWrong
+?`Nemáš chybné otázky z predmetu ${subject}.`
+:`Nemáš otázky z predmetu ${subject}.`);
 
-  if(!pool.length)return alert(onlyWrong
-    ? `Nemáš chybné otázky z predmetu ${subject}.`
-    : `Nemáš otázky z predmetu ${subject}.`);
-
-  if(!onlyWrong&&$('testType').value==='numbers'){
-    let nums;
-    try{nums=parseQuestionNumbers($('questionNumbers').value)}
-    catch(e){return alert(e.message)}
-    const byNumber=new Map(pool.filter(q=>Number.isInteger(q.question_number))
-      .map(q=>[q.question_number,q]));
-    const missing=nums.filter(n=>!byNumber.has(n));
-    if(missing.length)return alert(`V predmete ${subject} ešte nemáš otázky číslo: ${missing.join(', ')}.`);
-    pool=nums.map(n=>byNumber.get(n));
-  }else{
-    const n=Math.min(Math.max(1,+$('count').value||1),pool.length);
-    pool=shuffle(pool).slice(0,n);
-  }
-
-  const m=+$('mode').value;
-  test={
-    subject,
-    items:pool.map(q=>({q,opts:m===8?shuffle(q.answers):shuffle(q.answers).slice(0,4)})),
-    i:0,sel:[],ans:[]
-  };
-  tab('test');
-  $('setup').classList.add('hidden');
-  renderTest();
+if(!onlyWrong&&$('testType').value==='numbers'){
+let nums;
+try{nums=parseQuestionNumbers($('questionNumbers').value)}
+catch(e){return alert(e.message)}
+const byNumber=new Map(pool.filter(q=>Number.isInteger(q.question_number))
+.map(q=>[q.question_number,q]));
+const missing=nums.filter(n=>!byNumber.has(n));
+if(missing.length)return alert(`V predmete ${subject} ešte nemáš otázky číslo: ${missing.join(', ')}.`);
+pool=nums.map(n=>byNumber.get(n));
+}else{
+const n=Math.min(Math.max(1,+$('count').value||1),pool.length);
+pool=shuffle(pool).slice(0,n);
 }
-
+const m=+$('mode').value;
+test={
+subject,
+items:pool.map(q=>({q,opts:m===8?shuffle(q.answers):shuffle(q.answers).slice(0,4)})),
+i:0,sel:[],ans:[]
+};
+tab('test');
+$('setup').classList.add('hidden');
+renderTest();
+}
+function answerDisplay(a){
+return `<span>
+${a.answer_text?`<span>${esc(a.answer_text)}</span>`:''}
+${a.signed_image?`<img class="aimg" src="${esc(a.signed_image)}" alt="Obrázok odpovede ${esc(a.letter)}">`:''}
+</span>`;
+}
 function renderTest(){
-  let it=test.items[test.i];
-  let q=it.q;
-
-  $('testArea').classList.remove('hidden');
-  $('testArea').innerHTML=`
-    <div class="card">
-      <div class="small">${q.subject==='Biológia'?'🧬':'🧪'} ${esc(q.subject)} • Otázka ${test.i+1} z ${test.items.length}</div>
-      <div class="progress"><div style="width:${100*test.i/test.items.length}%"></div></div>
-
-      <h2>${esc(q.question)}</h2>
-
-      ${q.signed_image?`<img class="qimg" src="${q.signed_image}">`:''}
-
-      ${it.opts.map(a=>`
-        <label class="option ${test.sel.includes(a.letter)?'sel':''}">
-          <input type="checkbox"
-            ${test.sel.includes(a.letter)?'checked':''}
-            onchange="tog('${a.letter}')">
-          <span><b>${a.letter})</b> ${esc(a.answer_text)}</span>
-        </label>
-      `).join('')}
-
-      <div class="actions">
-        <button onclick="next()">${test.i===test.items.length-1?'Vyhodnotiť':'Ďalej →'}</button>
-      </div>
-    </div>
-  `;
+const it=test.items[test.i];
+const q=it.q;
+$('testArea').classList.remove('hidden');
+$('testArea').innerHTML=`
+<div class="card">
+<div class="small">${q.subject==='Biológia'?'🧬':'🧪'} ${esc(q.subject)}
+• Otázka ${test.i+1} z ${test.items.length}
+${q.question_number!=null?' • Číslo '+q.question_number:''}</div>
+<div class="progress"><div style="width:${100*test.i/test.items.length}%"></div></div>
+<h2>${esc(q.question)}</h2>
+${q.signed_image?`<img class="qimg" src="${esc(q.signed_image)}">`:''}
+${it.opts.map(a=>`
+<label class="option ${test.sel.includes(a.letter)?'sel':''}">
+<input type="checkbox"
+${test.sel.includes(a.letter)?'checked':''}
+onchange="tog('${a.letter}')">
+<span><b>${a.letter})</b> ${answerDisplay(a)}</span>
+</label>
+`).join('')}
+<div class="actions">
+<button onclick="next()">${test.i===test.items.length-1?'Vyhodnotiť':'Ďalej →'}</button>
+</div>
+</div>
+`;
 }
-
 function tog(l){
-  if(test.sel.includes(l))test.sel=test.sel.filter(x=>x!==l);
-  else test.sel.push(l);
-  renderTest();
+if(test.sel.includes(l))test.sel=test.sel.filter(x=>x!==l);
+else test.sel.push(l);
+renderTest();
 }
-
 function next(){
-  test.ans[test.i]=[...test.sel].sort();
-
-  if(test.i<test.items.length-1){
-    test.i++;
-    test.sel=[];
-    renderTest();
-  }else{
-    finish();
-  }
+test.ans[test.i]=[...test.sel].sort();
+if(test.i<test.items.length-1){
+test.i++;
+test.sel=[];
+renderTest();
+}else finish();
 }
-
 async function finish(){
-  let score=0,ds=[];
-
-  for(let i=0;i<test.items.length;i++){
-    let it=test.items[i];
-    let shown=new Set(it.opts.map(a=>a.letter));
-
-    let cor=it.q.answers
-      .filter(a=>a.is_correct&&shown.has(a.letter))
-      .map(a=>a.letter).sort();
-
-    let mine=(test.ans[i]||[]).sort();
-    let ok=JSON.stringify(cor)===JSON.stringify(mine);
-
-    if(ok){
-      score++;
-    }else{
-      await sb.from('wrong_questions').upsert({
-        user_id:user.id,
-        question_id:it.q.id
-      });
-      wrong.add(it.q.id);
-    }
-
-    ds.push({it,cor,mine,ok});
-  }
-
-  let pct=Math.round(score/test.items.length*100);
-
-  $('testArea').innerHTML=`
-    <div class="card">
-      <h2>Výsledok – ${test.subject==='Biológia'?'🧬':'🧪'} ${esc(test.subject)}</h2>
-      <div class="stat">${score}/${test.items.length} — ${pct}%</div>
-      <p class="small">Chybné otázky boli uložené do priečinka Chybné.</p>
-      <div class="actions"><button onclick="newTest()">Nový test</button></div>
-    </div>
-    ${ds.map((d,i)=>review(d,i)).join('')}
-  `;
-
-  renderAll();
+let score=0,ds=[];
+for(let i=0;i<test.items.length;i++){
+const it=test.items[i];
+const shown=new Set(it.opts.map(a=>a.letter));
+const cor=it.q.answers.filter(a=>a.is_correct&&shown.has(a.letter))
+.map(a=>a.letter).sort();
+const mine=(test.ans[i]||[]).sort();
+const ok=JSON.stringify(cor)===JSON.stringify(mine);
+if(ok){
+score++;
+}else{
+const r=await sb.from('wrong_questions').upsert({
+user_id:user.id,question_id:it.q.id
+});
+if(r.error)console.error(r.error);
+else wrong.add(it.q.id);
 }
-
+ds.push({it,cor,mine,ok});
+}
+const pct=Math.round(score/test.items.length*100);
+$('testArea').innerHTML=`
+<div class="card">
+<h2>Výsledok – ${test.subject==='Biológia'?'🧬':'🧪'} ${esc(test.subject)}</h2>
+<div class="stat">${score}/${test.items.length} — ${pct}%</div>
+<p class="small">Chybné otázky boli uložené do priečinka Chybné.</p>
+<div class="actions"><button onclick="newTest()">Nový test</button></div>
+</div>
+${ds.map((d,i)=>review(d,i)).join('')}
+`;
+renderAll();
+}
 function review(d,i){
-  let q=d.it.q;
-  let shown=new Set(d.it.opts.map(a=>a.letter));
-
-  return `
-    <div class="card">
-      <h3>${i+1}. ${esc(q.question)}</h3>
-      <span class="badge">${q.subject==='Biológia'?'🧬':'🧪'} ${esc(q.subject)}</span>
-
-      ${q.signed_image?`<img class="qimg" src="${q.signed_image}">`:''}
-
-      <p>
-        <b>${d.ok?'✓ Správne':'✗ Nesprávne'}</b>
-        — tvoje: ${d.mine.join(', ')||'žiadna'}
-        | správne medzi zobrazenými: ${d.cor.join(', ')||'žiadna'}
-      </p>
-
-      ${q.answers.map(a=>`
-        <div class="res ${a.is_correct?'good':'bad'}">
-          <b>${a.letter})</b> ${esc(a.answer_text)}
-          <span style="float:right;font-size:11px;font-weight:800">
-            ${a.is_correct?'SPRÁVNA':'NESPRÁVNA'}
-            ${shown.has(a.letter)?' • V TESTE':' • NEZOBRAZENÁ'}
-          </span>
-        </div>
-      `).join('')}
-
-      ${q.explanation?`<p><b>Vysvetlenie:</b> ${esc(q.explanation)}</p>`:''}
-    </div>
-  `;
+const q=d.it.q;
+const shown=new Set(d.it.opts.map(a=>a.letter));
+return `
+<div class="card">
+<h3>${q.question_number!=null?q.question_number+'.':i+1+'.'} ${esc(q.question)}</h3>
+<span class="badge">${q.subject==='Biológia'?'🧬':'🧪'} ${esc(q.subject)}</span>
+${q.signed_image?`<img class="qimg" src="${esc(q.signed_image)}">`:''}
+<p>
+<b>${d.ok?'✓ Správne':'✗ Nesprávne'}</b>
+— tvoje: ${d.mine.join(', ')||'žiadna'}
+| správne medzi zobrazenými: ${d.cor.join(', ')||'žiadna'}
+</p>
+${q.answers.map(a=>`
+<div class="res ${a.is_correct?'good':'bad'}">
+<b>${a.letter})</b> ${answerDisplay(a)}
+<div class="small">
+${a.is_correct?'SPRÁVNA':'NESPRÁVNA'}
+${shown.has(a.letter)?' • V TESTE':' • NEZOBRAZENÁ'}
+</div>
+</div>
+`).join('')}
+${q.explanation?`<p><b>Vysvetlenie:</b> ${esc(q.explanation)}</p>`:''}
+</div>
+`;
 }
-
 function newTest(){
-  $('setup').classList.remove('hidden');
-  $('testArea').classList.add('hidden');
-  scrollTo(0,0);
+$('setup').classList.remove('hidden');
+$('testArea').classList.add('hidden');
+scrollTo(0,0);
 }
-
 function renderAll(){
-  renderQuestions();
-  renderWrong();
-
-  let chem=questions.filter(q=>q.subject==='Chémia').length;
-  let bio=questions.filter(q=>q.subject==='Biológia').length;
-
-  $('info').textContent=`Chémia: ${chem} otázok • Biológia: ${bio} otázok • Chybné: ${wrong.size}`;
-  $('wn').textContent=wrong.size?'('+wrong.size+')':'';
+renderQuestions();
+renderWrong();
+const chem=questions.filter(q=>q.subject==='Chémia').length;
+const bio=questions.filter(q=>q.subject==='Biológia').length;
+$('info').textContent=`Chémia: ${chem} otázok • Biológia: ${bio} otázok • Chybné: ${wrong.size}`;
+$('wn').textContent=wrong.size?'('+wrong.size+')':'';
 }
-
 editor();
 changeTestType();
 chooseSubject('Chémia');
 init();
 </script>
-
 </body>
 </html>
-<!-- verzia vlastne-cisla-otazok -->
