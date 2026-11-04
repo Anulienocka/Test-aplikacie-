@@ -769,5 +769,384 @@ changeTestType();
 chooseSubject('Chémia');
 init();
 </script>
+  
+<!-- NOVÁ ZÁLOŽKA: UČENIE -->
+<style>
+.learn-feedback-good {
+  border-color:#16784a!important;
+  background:#e8f7ef!important;
+}
+.learn-feedback-bad {
+  border-color:#c93636!important;
+  background:#fdecec!important;
+}
+.learn-feedback-note {
+  font-size:13px;
+  font-weight:700;
+  margin-top:7px;
+}
+</style>
+
+<script>
+let learningSession = null;
+
+(function addLearningTab() {
+  const tabs = document.querySelector('.tabs');
+  const questionsTab = [...tabs.querySelectorAll('button')]
+    .find(b => b.getAttribute('onclick') === "tab('questions')");
+
+  const btn = document.createElement('button');
+  btn.className = 'alt';
+  btn.textContent = '📖 Učenie';
+  btn.onclick = () => tab('learn');
+
+  tabs.insertBefore(btn, questionsTab);
+
+  const section = document.createElement('section');
+  section.id = 'learn';
+  section.className = 'hidden';
+
+  section.innerHTML = `
+    <div id="learningSetup" class="card">
+      <h2>📖 Učenie otázok</h2>
+
+      <label>Predmet</label>
+      <select id="learningSubject">
+        <option value="Chémia">🧪 Chémia</option>
+        <option value="Biológia">🧬 Biológia</option>
+      </select>
+
+      <div class="row">
+        <div>
+          <label>Od otázky</label>
+          <input id="learningFrom" type="number"
+                 min="1" max="1000" value="1">
+        </div>
+        <div>
+          <label>Po otázku</label>
+          <input id="learningTo" type="number"
+                 min="1" max="1000" value="50">
+        </div>
+      </div>
+
+      <label>Poradie otázok</label>
+      <select id="learningOrder">
+        <option value="sequence">Zaradom podľa čísla</option>
+        <option value="random">Náhodne</option>
+      </select>
+
+      <label>Počet možností</label>
+      <select id="learningMode">
+        <option value="4">4 náhodné možnosti z 8</option>
+        <option value="8">Všetkých 8 možností</option>
+      </select>
+
+      <p class="small">
+        Pri 4 možnostiach sa náhodne vyberú
+        štyri odpovede z A až H.
+      </p>
+
+      <button onclick="beginLearning()">
+        📖 Začať učenie
+      </button>
+    </div>
+
+    <div id="learningArea" class="hidden"></div>
+  `;
+
+  document.getElementById('app').appendChild(section);
+
+  const originalTab = window.tab;
+
+  window.tab = function(id) {
+    if (id === 'learn') {
+      ['test', 'questions', 'wrong', 'account']
+        .forEach(x => $(x).classList.add('hidden'));
+      $('learn').classList.remove('hidden');
+    } else {
+      $('learn').classList.add('hidden');
+      originalTab(id);
+    }
+  };
+})();
+
+function beginLearning() {
+  const subject = $('learningSubject').value;
+  const from = Number($('learningFrom').value);
+  const to = Number($('learningTo').value);
+  const order = $('learningOrder').value;
+  const mode = Number($('learningMode').value);
+
+  if (
+    !Number.isInteger(from) ||
+    !Number.isInteger(to) ||
+    from < 1 ||
+    to > 1000 ||
+    from > to
+  ) {
+    alert('Zadaj správny rozsah, napríklad 25 až 50.');
+    return;
+  }
+
+  let pool = questions.filter(q =>
+    q.subject === subject &&
+    Number.isInteger(q.question_number) &&
+    q.question_number >= from &&
+    q.question_number <= to
+  );
+
+  if (!pool.length) {
+    alert('V tomto rozsahu zatiaľ nemáš otázky.');
+    return;
+  }
+
+  pool.sort((a,b) => a.question_number - b.question_number);
+
+  if (order === 'random') {
+    pool = shuffle(pool);
+  }
+
+  learningSession = {
+    subject,
+    items: pool.map(q => ({
+      q,
+      opts: mode === 4
+        ? shuffle(q.answers).slice(0,4)
+        : shuffle(q.answers)
+    })),
+    index: 0,
+    selected: [],
+    checked: false,
+    score: 0
+  };
+
+  $('learningSetup').classList.add('hidden');
+  $('learningArea').classList.remove('hidden');
+
+  showLearningQuestion();
+}
+
+function showLearningQuestion() {
+  const s = learningSession;
+  if (!s) return;
+
+  const item = s.items[s.index];
+  const q = item.q;
+
+  const correct = item.opts
+    .filter(a => a.is_correct)
+    .map(a => a.letter)
+    .sort();
+
+  const chosen = [...s.selected].sort();
+
+  const success =
+    JSON.stringify(correct) === JSON.stringify(chosen);
+
+  $('learningArea').innerHTML = `
+    <div class="card">
+
+      <div class="small">
+        ${esc(s.subject)}
+        • Otázka ${s.index + 1} z ${s.items.length}
+        • Číslo ${q.question_number}
+      </div>
+
+      <div class="progress">
+        <div style="width:${
+          100 * (s.index + 1) / s.items.length
+        }%"></div>
+      </div>
+
+      <h2>${esc(q.question)}</h2>
+
+      ${
+        q.signed_image
+          ? `<img class="qimg"
+                  src="${esc(q.signed_image)}">`
+          : ''
+      }
+
+      ${item.opts.map(a => {
+        const selected = s.selected.includes(a.letter);
+
+        let feedbackClass = '';
+
+        if (s.checked) {
+          feedbackClass = a.is_correct
+            ? 'learn-feedback-good'
+            : 'learn-feedback-bad';
+        }
+
+        return `
+          <label class="option ${
+            !s.checked && selected ? 'sel' : ''
+          } ${feedbackClass}">
+
+            <input type="checkbox"
+              ${selected ? 'checked' : ''}
+              ${s.checked ? 'disabled' : ''}
+              onchange="toggleLearningAnswer('${a.letter}')">
+
+            <span>
+              <b>${a.letter})</b>
+              ${answerDisplay(a)}
+
+              ${
+                s.checked
+                  ? `<div class="learn-feedback-note">
+                      ${
+                        a.is_correct
+                          ? '✓ SPRÁVNA'
+                          : '✗ NESPRÁVNA'
+                      }
+                      ${
+                        selected ? ' • Tvoja voľba' : ''
+                      }
+                    </div>`
+                  : ''
+              }
+            </span>
+          </label>
+        `;
+      }).join('')}
+
+      ${
+        s.checked
+          ? `
+            <h3>
+              ${
+                success
+                  ? '✅ Správne!'
+                  : '❌ Nesprávne'
+              }
+            </h3>
+
+            <p>
+              Tvoje odpovede:
+              <b>${chosen.join(', ') || 'žiadna'}</b>
+            </p>
+
+            <p>
+              Správne možnosti:
+              <b>${correct.join(', ') || 'žiadna'}</b>
+            </p>
+
+            ${
+              q.explanation
+                ? `<p><b>Vysvetlenie:</b>
+                     ${esc(q.explanation)}</p>`
+                : ''
+            }
+
+            <button onclick="nextLearningQuestion()">
+              ${
+                s.index === s.items.length - 1
+                  ? '🏁 Dokončiť učenie'
+                  : 'Ďalšia otázka →'
+              }
+            </button>
+          `
+          : `
+            <button onclick="checkLearningAnswer()">
+              ✅ Skontrolovať odpoveď
+            </button>
+          `
+      }
+
+      <div style="margin-top:15px">
+        <button class="alt" onclick="stopLearning()">
+          Ukončiť učenie
+        </button>
+      </div>
+
+    </div>
+  `;
+}
+
+function toggleLearningAnswer(letter) {
+  const s = learningSession;
+
+  if (!s || s.checked) return;
+
+  if (s.selected.includes(letter)) {
+    s.selected = s.selected.filter(x => x !== letter);
+  } else {
+    s.selected.push(letter);
+  }
+
+  showLearningQuestion();
+}
+
+function checkLearningAnswer() {
+  const s = learningSession;
+
+  if (!s || s.checked) return;
+
+  const correct = s.items[s.index].opts
+    .filter(a => a.is_correct)
+    .map(a => a.letter)
+    .sort();
+
+  const chosen = [...s.selected].sort();
+
+  if (
+    JSON.stringify(correct) === JSON.stringify(chosen)
+  ) {
+    s.score++;
+  }
+
+  s.checked = true;
+  showLearningQuestion();
+}
+
+function nextLearningQuestion() {
+  const s = learningSession;
+
+  if (!s || !s.checked) return;
+
+  s.index++;
+
+  if (s.index >= s.items.length) {
+    const total = s.items.length;
+    const score = s.score;
+    const percent = Math.round(100 * score / total);
+
+    $('learningArea').innerHTML = `
+      <div class="card">
+        <h2>🎉 Učenie dokončené!</h2>
+
+        <div class="stat">
+          ${score}/${total}
+        </div>
+
+        <p>
+          Správne zodpovedaných: ${percent} %
+        </p>
+
+        <button onclick="stopLearning()">
+          📖 Nové učenie
+        </button>
+      </div>
+    `;
+
+    return;
+  }
+
+  s.selected = [];
+  s.checked = false;
+
+  showLearningQuestion();
+}
+
+function stopLearning() {
+  learningSession = null;
+
+  $('learningSetup').classList.remove('hidden');
+  $('learningArea').classList.add('hidden');
+  $('learningArea').innerHTML = '';
+}
+</script>
+
 </body>
 </html>
